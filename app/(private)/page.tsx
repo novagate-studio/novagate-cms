@@ -1,154 +1,227 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { DOCUMENT_TYPE } from '@/constants'
-import { useUser } from '@/contexts/user-context'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Player } from '@/models/player'
+import { getPlayersList } from '@/services/player'
+import { Loader2 } from 'lucide-react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { debounce } from 'lodash'
+import { useRouter } from 'next/navigation'
+
 export default function Home() {
-  const { user, loading, error, refreshUser } = useUser()
+  const router = useRouter()
+  const [players, setPlayers] = useState<Player[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [sortOption, setSortOption] = useState('newest')
+  const [offset, setOffset] = useState(0)
+  const [limit] = useState(20)
 
-  if (loading) {
-    return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900' />
-      </div>
-    )
+  // Debounced search handler
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearch(value)
+      }, 500),
+    []
+  )
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel()
+    }
+  }, [debouncedSearch])
+
+  // Convert sort option to orderBy and orderDirection
+  const getSortParams = (option: string) => {
+    switch (option) {
+      case 'newest':
+        return { orderBy: 'created_at', orderDirection: 'desc' }
+      case 'oldest':
+        return { orderBy: 'created_at', orderDirection: 'asc' }
+      case 'coin_asc':
+        return { orderBy: 'total_deposit', orderDirection: 'asc' }
+      case 'coin_desc':
+        return { orderBy: 'total_deposit', orderDirection: 'desc' }
+      default:
+        return { orderBy: 'created_at', orderDirection: 'desc' }
+    }
   }
 
-  if (error) {
-    return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <Card className='w-full max-w-md'>
-          <CardHeader>
-            <CardTitle className='text-red-600'>Lỗi</CardTitle>
-            <CardDescription>{error}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={refreshUser} className='w-full'>
-              Thử lại
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  const fetchPlayers = async (reset: boolean = false) => {
+    try {
+      const currentOffset = reset ? 0 : offset
+      const { orderBy, orderDirection } = getSortParams(sortOption)
+      const response = await getPlayersList({
+        search,
+        orderBy,
+        orderDirection,
+        offset: currentOffset,
+        limit,
+      })
+
+      const newPlayers = response.data || []
+
+      if (reset) {
+        setPlayers(newPlayers)
+        setOffset(limit)
+      } else {
+        setPlayers((prev) => [...prev, ...newPlayers])
+        setOffset((prev) => prev + limit)
+      }
+
+      // If we get less than limit, no more data
+      setHasMore(newPlayers.length === limit)
+    } catch (error) {
+      console.error('Failed to fetch players:', error)
+      setHasMore(false)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // Helper function to mask sensitive data
-  const maskPhone = (phone: string | undefined) => {
-    if (!phone) return ''
-    return phone.replace(/.(?=.{4})/g, '*')
-  }
+  const loadMore = useCallback(() => {
+    if (!loading) {
+      fetchPlayers(false)
+    }
+  }, [loading, offset, search, sortOption])
 
-  const maskEmail = (email: string | undefined) => {
-    if (!email) return ''
-    const [username, domain] = email.split('@')
-    if (username.length <= 2) return email
-    const maskedUsername = '*'.repeat(username.length - 2) + username.slice(-2)
-    return `${maskedUsername}@${domain}`
-  }
+  useEffect(() => {
+    setLoading(true)
+    setPlayers([])
+    setOffset(0)
+    setHasMore(true)
+    fetchPlayers(true)
+  }, [search, sortOption])
 
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return ''
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
+  const handleSortChange = (value: string) => {
+    setSortOption(value)
   }
 
   return (
-    <div className='space-y-4'>
-      <Card className='shadow-lg'>
-        <CardHeader className='pb-4'>
-          <CardTitle className='text-2xl font-bold text-gray-900'>Xin Chào, {user?.username}!</CardTitle>
-          <CardDescription className='text-base text-gray-600 mt-2'>Thông tin tài khoản của bạn:</CardDescription>
-        </CardHeader>
-
-        <CardContent className='space-y-6'>
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 text-sm'>
-            {/* Personal Information */}
-            <div className='space-y-4'>
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Họ và Tên:</span>
-                <span className='text-gray-900 font-semibold'>{user?.full_name || 'Chưa cập nhật'}</span>
-              </div>
-
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Ngày Sinh:</span>
-                <span className='text-gray-900 font-semibold'>{formatDate(user?.dob) || 'Chưa cập nhật'}</span>
-              </div>
-
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Giới tính:</span>
-                <span className='text-gray-900 font-semibold'>
-                  {user?.gender === 'male' ? 'Nam' : user?.gender === 'female' ? 'Nữ' : 'Chưa cập nhật'}
-                </span>
-              </div>
-
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Điện thoại:</span>
-                <span className='text-gray-900 font-semibold'>{maskPhone(user?.phone) || 'Chưa cập nhật'}</span>
-              </div>
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Email:</span>
-                <span className='text-gray-900 font-semibold'>{maskEmail(user?.email) || 'Chưa cập nhật'}</span>
-              </div>
-              <div className='flex justify-between py-2'>
-                <span className='text-gray-600 font-medium'>Địa Chỉ:</span>
-                <span className='text-gray-900 font-semibold'>{user?.address || 'Chưa cập nhật'}</span>
-              </div>
-            </div>
-
-            {/* Contact & Document Information */}
-            <div className='space-y-4'>
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Loại giấy tờ:</span>
-                <span className='text-gray-900 font-semibold'>
-                  {user?.user_identity_documents?.[0]?.document_type === DOCUMENT_TYPE.CCCD
-                    ? 'Căn cước công dân'
-                    : user?.user_identity_documents?.[0]?.document_type === DOCUMENT_TYPE.PASSPORT
-                    ? 'Hộ chiếu'
-                    : 'Chưa cập nhật'}
-                </span>
-              </div>
-
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>
-                  {user?.user_identity_documents?.[0]?.document_type === DOCUMENT_TYPE.PASSPORT
-                    ? 'Số Hộ chiếu:'
-                    : 'Số CCCD:'}
-                </span>
-                <span className='text-gray-900 font-semibold'>
-                  {user?.user_identity_documents?.[0]?.document_number || 'Chưa cập nhật'}
-                </span>
-              </div>
-
-              <div className='flex justify-between py-2 border-b border-gray-100'>
-                <span className='text-gray-600 font-medium'>Ngày Cấp:</span>
-                <span className='text-gray-900 font-semibold'>
-                  {user?.user_identity_documents?.[0]?.issue_date
-                    ? formatDate(user.user_identity_documents[0].issue_date)
-                    : 'Chưa cập nhật'}
-                </span>
-              </div>
-
-              <div className='flex justify-between py-2 '>
-                <span className='text-gray-600 font-medium'>Nơi Cấp:</span>
-                <span className='text-gray-900 font-semibold'>
-                  {user?.user_identity_documents?.[0]?.place_of_issue || 'Chưa cập nhật'}
-                </span>
-              </div>
-            </div>
+    <div className=''>
+      <div className='space-y-6'>
+        <h1 className='text-2xl font-bold text-gray-900'>
+          <>Danh sách người chơi</>
+        </h1>
+        <div>
+          <div className='flex flex-col md:flex-row gap-4 mb-6'>
+            <Input
+              placeholder='Tìm kiếm theo username, họ tên, email, số điện thoại...'
+              defaultValue={search}
+              onChange={(e) => debouncedSearch(e.target.value)}
+              className='flex-1'
+            />
+            <Select value={sortOption} onValueChange={handleSortChange}>
+              <SelectTrigger className='w-[200px]'>
+                <SelectValue placeholder='Sắp xếp' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='newest'>Mới nhất</SelectItem>
+                <SelectItem value='oldest'>Cũ nhất</SelectItem>
+                <SelectItem value='coin_asc'>Số coin tăng dần</SelectItem>
+                <SelectItem value='coin_desc'>Số coin giảm dần</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Action Button */}
-          <div className='pt-6 border-t border-gray-200'>
-            <Button onClick={refreshUser} variant='outline' className='w-full md:w-auto'>
-              Làm mới thông tin
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          {loading ? (
+            <div className='space-y-2'>
+              <Skeleton className='h-12 w-full' />
+              <Skeleton className='h-12 w-full' />
+              <Skeleton className='h-12 w-full' />
+              <Skeleton className='h-12 w-full' />
+              <Skeleton className='h-12 w-full' />
+            </div>
+          ) : (
+            <div id='scrollableDiv' className='rounded-md border' style={{ height: '600px', overflow: 'auto' }}>
+              <InfiniteScroll
+                dataLength={players.length}
+                next={loadMore}
+                hasMore={hasMore}
+                loader={
+                  <div className='flex justify-center py-4'>
+                    <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+                  </div>
+                }
+                endMessage={
+                  <div className='text-center py-4 text-sm text-muted-foreground'>
+                    {players.length > 0 ? 'Đã hiển thị tất cả người chơi' : 'Không tìm thấy người chơi nào'}
+                  </div>
+                }
+                scrollableTarget='scrollableDiv'>
+                <Table>
+                  <TableHeader className='sticky top-0 bg-background z-10'>
+                    <TableRow>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Họ tên</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Số điện thoại</TableHead>
+                      <TableHead>Vai trò</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead>Tổng nạp</TableHead>
+                      <TableHead>Tổng chuyển</TableHead>
+                      <TableHead>Số dư</TableHead>
+                      <TableHead>Ngày tạo</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {players.map((player) => (
+                      <TableRow
+                        key={player.id}
+                        className='cursor-pointer hover:bg-muted/50'
+                        onClick={() => router.push(`/players/${player.id}`)}>
+                        <TableCell className='font-medium'>{player.username}</TableCell>
+                        <TableCell>{player.full_name || '-'}</TableCell>
+                        <TableCell>{player.email || '-'}</TableCell>
+                        <TableCell>{player.phone || '-'}</TableCell>
+                        <TableCell>
+                          <div className='flex gap-1 flex-wrap'>
+                            {player.roles
+                              ? player.roles.split(',').map((role, index) => (
+                                  <Badge
+                                    key={index}
+                                    variant={role.trim() === 'admin' ? 'default' : 'secondary'}
+                                    className={role.trim() === 'admin' ? 'bg-purple-500 hover:bg-purple-600' : ''}>
+                                    {role.trim()}
+                                  </Badge>
+                                ))
+                              : '-'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={player.status === 'created' ? 'default' : 'outline'}
+                            className='bg-green-500 hover:bg-green-600'>
+                            {player.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{player.total_deposit || 0}</TableCell>
+                        <TableCell>{player.total_transfer || 0}</TableCell>
+                        <TableCell>
+                          {player.user_wallets?.[0]?.balance || 0} {player.user_wallets?.[0]?.currency || 'Coin'}
+                        </TableCell>
+                        <TableCell>
+                          {player.created_at ? new Date(player.created_at).toLocaleDateString('vi-VN') : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </InfiniteScroll>
+            </div>
+          )}
+
+          <div className='mt-4 text-sm text-muted-foreground'>Tổng số: {players.length} người chơi</div>
+        </div>
+      </div>
     </div>
   )
 }

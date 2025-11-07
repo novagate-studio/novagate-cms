@@ -14,7 +14,7 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { User, CreditCard, Key, Mail, Phone, FileText, CreditCard as IdCard, LogOut, Activity } from 'lucide-react'
+import { Users, LogOut, CreditCard, History, ArrowRightLeft, Gamepad2 } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -42,76 +42,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/'} asChild>
+              <SidebarMenuButton
+                size={'lg'}
+                className=''
+                isActive={pathname === '/' || pathname.startsWith('/players')}
+                asChild>
                 <Link href='/' onClick={handleMenuClick}>
-                  <User className='size-5!' />
-                  <span>Tài khoản</span>
+                  <Users className='size-5!' />
+                  <span>Danh sách người dùng</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/user-activities'} asChild>
-                <Link href='/user-activities' onClick={handleMenuClick}>
-                  <Activity className='size-5!' />
-                  <span>Lịch sử hoạt động</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/cccd'} asChild>
-                <Link href='/cccd' onClick={handleMenuClick}>
-                  <IdCard className='size-5!' />
-                  <span>Cập nhật CCCD</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/change-password'} asChild>
-                <Link href='/change-password' onClick={handleMenuClick}>
-                  <Key className='size-5!' />
-                  <span>Đổi mật khẩu</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/change-email'} asChild>
-                <Link href='/change-email' onClick={handleMenuClick}>
-                  <Mail className='size-5!' />
-                  <span>Đổi email</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/change-phone'} asChild>
-                <Link href='/change-phone' onClick={handleMenuClick}>
-                  <Phone className='size-5!' />
-                  <span>Đổi số điện thoại</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/update-profile'} asChild>
-                <Link href='/update-profile' onClick={handleMenuClick}>
-                  <FileText className='size-5!' />
-                  <span>Đổi thông tin cá nhân</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton size={'lg'} className='' isActive={pathname === '/topup'} asChild>
-                <Link
-                  href={process.env.NEXT_PUBLIC_PAYMENT_WEBSITE_URL || ''}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  onClick={handleMenuClick}>
+              <SidebarMenuButton size={'lg'} className='' isActive={pathname.startsWith('/payment')} asChild>
+                <Link href='/payment' onClick={handleMenuClick}>
                   <CreditCard className='size-5!' />
-                  <span>Nạp thẻ</span>
+                  <span>Thanh toán</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton size={'lg'} className='' isActive={pathname.startsWith('/deposit-history')} asChild>
+                <Link href='/deposit-history' onClick={handleMenuClick}>
+                  <History className='size-5!' />
+                  <span>Lịch sử nạp tiền</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton size={'lg'} className='' isActive={pathname.startsWith('/transfer-history')} asChild>
+                <Link href='/transfer-history' onClick={handleMenuClick}>
+                  <ArrowRightLeft className='size-5!' />
+                  <span>Lịch sử chuyển tiền</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton size={'lg'} className='' isActive={pathname.startsWith('/games')} asChild>
+                <Link href='/games' onClick={handleMenuClick}>
+                  <Gamepad2 className='size-5!' />
+                  <span>Danh sách game</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

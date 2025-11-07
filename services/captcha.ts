@@ -1,5 +1,5 @@
 import { ResponseData } from '.'
-import axiosInstance from './axios'
+import { axiosInstance } from './axios'
 
 // Fetch captcha image
 export const getCaptcha = async (): Promise<string> => {

@@ -1,6 +1,6 @@
 import { User } from '@/models/user'
 import { ResponseData } from '.'
-import axiosInstance from './axios'
+import { axiosInstance } from './axios'
 import { UserActivity } from '@/models/activity'
 
 export const getProfile = async (): Promise<ResponseData<User>> => {

@@ -1,5 +1,5 @@
 import { ResponseData } from '.'
-import axiosInstance from './axios'
+import { axiosInstance } from './axios'
 import { cookiesInstance } from './cookies'
 
 export const logout = async () => {
@@ -30,15 +30,17 @@ export const registry = async (data: {
   address: string
   email: string
   otp: string
-}): Promise<ResponseData<{
-  user: {
-    id: string
-    username: string
-    status: string
-    roles: string
-  }
-  token: string
-}>> => {
+}): Promise<
+  ResponseData<{
+    user: {
+      id: string
+      username: string
+      status: string
+      roles: string
+    }
+    token: string
+  }>
+> => {
   const formData = new FormData()
   for (const key in data) {
     formData.append(key, (data as any)[key])
@@ -46,15 +48,20 @@ export const registry = async (data: {
   const response = await axiosInstance.post(`/api/v2/auth/register`, formData)
   return response.data
 }
-export const login = async (username: string, password: string): Promise<ResponseData<{
-  user: {
-    id: string
-    username: string
-    status: string
-    roles: string
-  }
-  token: string
-}>> => {
+export const login = async (
+  username: string,
+  password: string
+): Promise<
+  ResponseData<{
+    user: {
+      id: string
+      username: string
+      status: string
+      roles: string
+    }
+    token: string
+  }>
+> => {
   const response = await axiosInstance.post(`/api/v2/auth/login`, {
     username,
     password,
