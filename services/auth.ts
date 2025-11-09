@@ -19,6 +19,10 @@ export const sendOTP = async (phone: string): Promise<ResponseData<any>> => {
   const response = await axiosInstance.post(`/api/v2/auth/register/sendOtp`, { phone_number: phone })
   return response.data
 }
+export const forgotPassword = async (phone: string): Promise<ResponseData<any>> => {
+  const response = await axiosInstance.post(`/api/v2/auth/forgotPassword`, { phone })
+  return response.data
+}
 export const registry = async (data: {
   full_name: string
   username: string

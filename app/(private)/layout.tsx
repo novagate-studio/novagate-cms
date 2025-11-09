@@ -111,14 +111,6 @@ function PrivateLayoutContent({ children }: { children: React.ReactNode }) {
     return null // UserContext will handle redirect to login
   }
 
-  // Check if user is admin
-  if (user && user.roles !== 'admin') {
-    toast.error('Bạn không có quyền truy cập. Vui lòng đăng nhập với tài khoản admin.')
-    const { logout } = useUser()
-    logout()
-    return null
-  }
-
   return (
     <SidebarProvider>
       <AppSidebar />
