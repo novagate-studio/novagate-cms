@@ -26,16 +26,24 @@ import { getCaptcha } from '@/services/captcha'
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
 import { Info, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 function PrivateLayoutContent({ children }: { children: React.ReactNode }) {
-  const { user, loading, error, refreshUser } = useUser()
+  const { user, loading, error, refreshUser, logout } = useUser()
   const [showOTPDialog, setShowOTPDialog] = useState(false)
   const [otp, setOtp] = useState('')
   const [isConfirming, setIsConfirming] = useState(false)
   const [captcha, setCaptcha] = useState('')
   const [captchaImage, setCaptchaImage] = useState<string>('')
+
+  // Check if user is admin
+  useEffect(() => {
+    if (!loading && user && !user.roles.includes('admin')) {
+      toast.error('Bạn không có quyền truy cập. Vui lòng đăng nhập với tài khoản admin.')
+      logout()
+    }
+  }, [user, loading, logout])
 
   const fetchCaptcha = async () => {
     try {
@@ -101,6 +109,14 @@ function PrivateLayoutContent({ children }: { children: React.ReactNode }) {
 
   if (error && !user) {
     return null // UserContext will handle redirect to login
+  }
+
+  // Check if user is admin
+  if (user && user.roles !== 'admin') {
+    toast.error('Bạn không có quyền truy cập. Vui lòng đăng nhập với tài khoản admin.')
+    const { logout } = useUser()
+    logout()
+    return null
   }
 
   return (
