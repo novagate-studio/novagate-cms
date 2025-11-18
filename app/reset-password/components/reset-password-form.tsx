@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -16,38 +16,52 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 // Form schema
-const resetPasswordSchema = z.object({
-  otp: z.string().min(1, {
-    message: 'Vui lòng nhập mã OTP',
-  }).length(6, {
-    message: 'Mã OTP phải có 6 chữ số',
-  }),
-  phone: z.string().min(1, {
-    message: 'Vui lòng nhập số điện thoại',
-  }).regex(/^[0-9+\-\s()]+$/, {
-    message: 'Số điện thoại không hợp lệ',
-  }),
-  username: z.string().min(1, {
-    message: 'Vui lòng nhập tên đăng nhập',
-  }).min(4, {
-    message: 'Tên đăng nhập phải có ít nhất 4 ký tự',
-  }),
-  password: z.string().min(1, {
-    message: 'Vui lòng nhập mật khẩu mới',
-  }).min(8, {
-    message: 'Mật khẩu phải có ít nhất 8 ký tự',
-  }),
-  confirm_password: z.string().min(1, {
-    message: 'Vui lòng xác nhận mật khẩu',
-  }),
-}).refine((data) => data.password === data.confirm_password, {
-  message: 'Mật khẩu xác nhận không khớp',
-  path: ['confirm_password'],
-})
+const resetPasswordSchema = z
+  .object({
+    otp: z
+      .string()
+      .min(1, {
+        message: 'Vui lòng nhập mã OTP',
+      })
+      .length(6, {
+        message: 'Mã OTP phải có 6 chữ số',
+      }),
+    phone: z
+      .string()
+      .min(1, {
+        message: 'Vui lòng nhập số điện thoại',
+      })
+      .regex(/^[0-9+\-\s()]+$/, {
+        message: 'Số điện thoại không hợp lệ',
+      }),
+    username: z
+      .string()
+      .min(1, {
+        message: 'Vui lòng nhập tên đăng nhập',
+      })
+      .min(4, {
+        message: 'Tên đăng nhập phải có ít nhất 4 ký tự',
+      }),
+    password: z
+      .string()
+      .min(1, {
+        message: 'Vui lòng nhập mật khẩu mới',
+      })
+      .min(8, {
+        message: 'Mật khẩu phải có ít nhất 8 ký tự',
+      }),
+    confirm_password: z.string().min(1, {
+      message: 'Vui lòng xác nhận mật khẩu',
+    }),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirm_password'],
+  })
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
-export function ResetPasswordForm({ className, ...props }: React.ComponentProps<'form'>) {
+function ResetPasswordFormContent({ className, ...props }: React.ComponentProps<'form'>) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -70,7 +84,7 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
     setIsSubmitting(true)
     try {
       const response = await resetPassword(values)
-      
+
       if (response.code === 200 || response.status) {
         toast.success('Đặt lại mật khẩu thành công!')
         setTimeout(() => {
@@ -132,7 +146,7 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name='otp'
@@ -195,5 +209,13 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
         </FieldGroup>
       </form>
     </Form>
+  )
+}
+
+export function ResetPasswordForm({ className, ...props }: React.ComponentProps<'form'>) {
+  return (
+    <Suspense fallback={<div className='flex justify-center items-center h-64'>Đang tải...</div>}>
+      <ResetPasswordFormContent className={className} {...props} />
+    </Suspense>
   )
 }
