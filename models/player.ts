@@ -21,3 +21,10 @@ export interface Player {
   created_at: string
   user_wallets: PlayerWallet[]
 }
+
+export interface Account {
+  id: number
+  userName: string
+  email: string | null
+  mobile: string | null
+}

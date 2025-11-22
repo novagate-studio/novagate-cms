@@ -24,3 +24,10 @@ export const deleteGiftCode = async (id: number): Promise<ResponseData<any>> => 
   const response = await adminAxiosInstance.delete(`/api/v2/giftcodes/thien-anh/${id}`)
   return response.data
 }
+
+export const bulkDeleteGiftCodes = async (ids: number[]): Promise<ResponseData<any>> => {
+  const response = await adminAxiosInstance.delete('/api/v2/giftcodes/thien-anh/bulk', {
+    data: { ids },
+  })
+  return response.data
+}

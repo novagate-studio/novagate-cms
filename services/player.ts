@@ -1,4 +1,4 @@
-import { Player } from '@/models/player'
+import { Player, Account } from '@/models/player'
 import { ResponseData } from '.'
 import { adminAxiosInstance } from './axios'
 
@@ -10,6 +10,13 @@ export const getPlayersList = async (params: {
   limit?: number
 }): Promise<ResponseData<Player[]>> => {
   const response = await adminAxiosInstance.get('/api/v2/users/list', { params })
+  return response.data
+}
+
+export const searchAccounts = async (username: string): Promise<ResponseData<Account[]>> => {
+  const response = await adminAxiosInstance.get('/api/v2/accounts/thien-anh/find', {
+    params: { username },
+  })
   return response.data
 }
 

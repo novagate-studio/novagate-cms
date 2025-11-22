@@ -11,10 +11,17 @@ export interface Game {
   updated_at: string
 }
 
-export const getGamesList = async (params?: {
-  offset?: number
-  limit?: number
-}): Promise<ResponseData<Game[]>> => {
+export interface Server {
+  id: number
+  name: string
+}
+
+export const getGamesList = async (params?: { offset?: number; limit?: number }): Promise<ResponseData<Game[]>> => {
   const response = await adminAxiosInstance.get('/api/v2/games/list', { params })
+  return response.data
+}
+
+export const getServersList = async (): Promise<ResponseData<Server[]>> => {
+  const response = await adminAxiosInstance.get('/api/v2/games/thien-anh/servers')
   return response.data
 }

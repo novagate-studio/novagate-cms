@@ -7,13 +7,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import { GiftCode } from '@/models/giftcode'
-import { getGiftCodesList } from '@/services/giftcode'
+import { getGiftCodesList, bulkDeleteGiftCodes } from '@/services/giftcode'
 import { debounce } from 'lodash'
 import { Search, Copy, Check, Trash2 } from 'lucide-react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { CreateGiftCodeDialog } from './components/create-giftcode-dialog'
 import { DeleteGiftCodeDialog } from './components/delete-giftcode-dialog'
@@ -28,6 +37,9 @@ export default function GiftCodePage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [deletingGiftCode, setDeletingGiftCode] = useState<{ id: number; code: string } | null>(null)
   const [selectedGiftCode, setSelectedGiftCode] = useState<GiftCode | null>(null)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false)
 
   const getSortParams = (sortValue: string) => {
     if (sortValue.startsWith('created_at_')) {
@@ -120,13 +132,62 @@ export default function GiftCodePage() {
     }
   }
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(giftCodes.map((gc) => gc.id))
+    } else {
+      setSelectedIds([])
+    }
+  }
+
+  const handleSelectOne = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedIds((prev) => [...prev, id])
+    } else {
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id))
+    }
+  }
+
+  const confirmBulkDelete = async () => {
+    setShowBulkDeleteDialog(false)
+    setIsBulkDeleting(true)
+    try {
+      const response = await bulkDeleteGiftCodes(selectedIds)
+      if (response.code === 200 || response.status) {
+        toast.success(`Đã xóa ${selectedIds.length} gift code thành công!`)
+        setSelectedIds([])
+        handleGiftCodeDeleted()
+      } else {
+        const errorMessage = typeof response.message === 'object' ? response.message.vi : response.message
+        toast.error(errorMessage || 'Có lỗi xảy ra khi xóa gift code')
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message?.vi || error?.response?.data?.message || 'Có lỗi xảy ra khi xóa gift code'
+      toast.error(errorMessage)
+    } finally {
+      setIsBulkDeleting(false)
+    }
+  }
+
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold'>Gift Code</h1>
+          {selectedIds.length > 0 && (
+            <p className='text-sm text-muted-foreground mt-1'>Đã chọn {selectedIds.length} gift code</p>
+          )}
         </div>
-        <CreateGiftCodeDialog onGiftCodeCreated={handleGiftCodeCreated} />
+        <div className='flex gap-2'>
+          {selectedIds.length > 0 && (
+            <Button variant='destructive' onClick={() => setShowBulkDeleteDialog(true)} disabled={isBulkDeleting}>
+              <Trash2 className='h-4 w-4 mr-2' />
+              {isBulkDeleting ? 'Đang xóa...' : `Xóa ${selectedIds.length} mục`}
+            </Button>
+          )}
+          <CreateGiftCodeDialog onGiftCodeCreated={handleGiftCodeCreated} />
+        </div>
       </div>
 
       <Card>
@@ -183,6 +244,12 @@ export default function GiftCodePage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className='w-12'>
+                      <Checkbox
+                        checked={selectedIds.length === giftCodes.length && giftCodes.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead>ID</TableHead>
                     <TableHead>Mã Code</TableHead>
                     <TableHead>Loại</TableHead>
@@ -201,6 +268,12 @@ export default function GiftCodePage() {
                       key={giftCode.id}
                       className='cursor-pointer hover:bg-muted/50'
                       onClick={() => setSelectedGiftCode(giftCode)}>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedIds.includes(giftCode.id)}
+                          onCheckedChange={(checked: boolean) => handleSelectOne(giftCode.id, checked)}
+                        />
+                      </TableCell>
                       <TableCell className='font-medium'>{giftCode.id}</TableCell>
                       <TableCell>
                         <div className='flex items-center gap-2'>
@@ -290,6 +363,25 @@ export default function GiftCodePage() {
         open={!!selectedGiftCode}
         onOpenChange={(open) => !open && setSelectedGiftCode(null)}
       />
+
+      <Dialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xóa nhiều Gift Code</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa {selectedIds.length} gift code đã chọn? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setShowBulkDeleteDialog(false)} disabled={isBulkDeleting}>
+              Hủy
+            </Button>
+            <Button variant='destructive' onClick={confirmBulkDelete} disabled={isBulkDeleting}>
+              {isBulkDeleting ? 'Đang xóa...' : 'Xóa'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
