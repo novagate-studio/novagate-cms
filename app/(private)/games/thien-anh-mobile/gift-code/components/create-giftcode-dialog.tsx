@@ -19,10 +19,11 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { toast } from 'sonner'
 import { createGiftCode } from '@/services/giftcode'
 import { getEventsList } from '@/services/event'
-import { Plus, Check, ChevronsUpDown } from 'lucide-react'
+import { Plus, Check, ChevronsUpDown, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Event } from '@/models/event'
 
@@ -187,6 +188,14 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 </FormItem>
               )}
             />
+            {form.watch('usageType') === 2 && form.watch('totalGiftCodes') > 1 && (
+              <Alert variant={'warning'}>
+                <AlertCircle className='h-4 w-4' />
+                <AlertDescription>
+                  Loại sử dụng "Một lần" với số lượng lớn hơn 1 sẽ tự động tạo mã gift code ngẫu nhiên.
+                </AlertDescription>
+              </Alert>
+            )}
             <FormField
               control={form.control}
               name='giftItemDescription'
