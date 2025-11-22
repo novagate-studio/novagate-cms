@@ -34,14 +34,18 @@ const giftCodeSchema = z.object({
   usageType: z.number().int().min(1).max(2, {
     message: 'Loại sử dụng phải là 1 (nhiều lần) hoặc 2 (một lần)',
   }),
-  totalGiftCodes: z.number().int().min(1, {
-    message: 'Số lượng phải lớn hơn 0',
-  }),
+  totalGiftCodes: z
+    .number()
+    .int()
+    .min(1, {
+      message: 'Số lượng phải lớn hơn 0',
+    })
+    .optional(),
   giftItemDescription: z.string(),
   giftMoneyDescription: z.string(),
-  serverId: z.number().int().min(1),
-  userId: z.number().int().min(1),
-  eventId: z.number().int().min(1),
+  serverId: z.number().int().min(1).optional(),
+  userId: z.number().int().min(1).optional(),
+  eventId: z.number().int().min(1).optional(),
 })
 
 type GiftCodeFormData = z.infer<typeof giftCodeSchema>
@@ -61,12 +65,12 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
     defaultValues: {
       code: '',
       usageType: 1,
-      totalGiftCodes: 1,
+      totalGiftCodes: undefined,
       giftItemDescription: '',
       giftMoneyDescription: '',
-      serverId: 1,
-      userId: 1,
-      eventId: 1,
+      serverId: undefined,
+      userId: undefined,
+      eventId: undefined,
     },
   })
 
@@ -92,10 +96,33 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
 
     setIsSubmitting(true)
     try {
-      const response = await createGiftCode({
-        ...values,
-        userId: values.userId.toString(),
-      })
+      // For usageType 1 (nhiều lần): exclude userId and totalGiftCodes (BE will set totalGiftCodes to 1)
+      const payload: any = {
+        code: values.code,
+        usageType: values.usageType,
+        giftItemDescription: values.giftItemDescription,
+        giftMoneyDescription: values.giftMoneyDescription,
+      }
+
+      // Only include optional fields if they have values
+      if (values.serverId) {
+        payload.serverId = values.serverId
+      }
+      if (values.eventId) {
+        payload.eventId = values.eventId
+      }
+
+      // Only include totalGiftCodes and userId for usageType 2 (một lần)
+      if (values.usageType === 2) {
+        if (values.totalGiftCodes) {
+          payload.totalGiftCodes = values.totalGiftCodes
+        }
+        if (values.userId) {
+          payload.userId = values.userId.toString()
+        }
+      }
+
+      const response = await createGiftCode(payload)
 
       if (response.code === 201 || response.status) {
         toast.success('Tạo Gift Code thành công!')
@@ -169,26 +196,28 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name='totalGiftCodes'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Số lượng Gift Code</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='number'
-                      placeholder='Nhập số lượng'
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch('usageType') === 2 && form.watch('totalGiftCodes') > 1 && (
+            {form.watch('usageType') === 2 && (
+              <FormField
+                control={form.control}
+                name='totalGiftCodes'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Số lượng Gift Code</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        placeholder='Nhập số lượng'
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {form.watch('usageType') === 2 && form.watch('totalGiftCodes') && form.watch('totalGiftCodes')! > 1 && (
               <Alert variant={'warning'}>
                 <AlertCircle className='h-4 w-4' />
                 <AlertDescription>
@@ -228,13 +257,16 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 name='serverId'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Server ID</FormLabel>
+                    <FormLabel>
+                      Server ID <span className='text-muted-foreground'>(Tùy chọn)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type='number'
-                        placeholder='Server ID'
+                        placeholder=''
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                         disabled={isSubmitting}
                       />
                     </FormControl>
@@ -242,31 +274,38 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name='userId'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>User ID</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='number'
-                        placeholder='User ID'
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                        disabled={isSubmitting}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {form.watch('usageType') === 2 && (
+                <FormField
+                  control={form.control}
+                  name='userId'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        User ID <span className='text-muted-foreground'>(Tùy chọn)</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          placeholder=''
+                          {...field}
+                          value={field.value || ''}
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name='eventId'
                 render={({ field }) => (
                   <FormItem className='flex flex-col'>
-                    <FormLabel>Sự kiện</FormLabel>
+                    <FormLabel>
+                      Sự kiện <span className='text-muted-foreground'>(Tùy chọn)</span>
+                    </FormLabel>
                     <Popover open={eventPopoverOpen} onOpenChange={setEventPopoverOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>

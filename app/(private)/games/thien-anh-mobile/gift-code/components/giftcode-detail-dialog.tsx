@@ -78,17 +78,19 @@ export function GiftCodeDetailDialog({ giftCode, open, onOpenChange }: GiftCodeD
             </div>
           </div>
 
-          <div>
-            <div className='text-sm font-medium text-muted-foreground'>Người dùng</div>
-            {giftCode.user ? (
-              <div className='text-sm'>
-                <div className='font-medium'>{giftCode.user.user_name}</div>
-                <div className='text-muted-foreground'>ID: {giftCode.user.id}</div>
-              </div>
-            ) : (
-              <div className='text-sm'>-</div>
-            )}
-          </div>
+          {giftCode.usage_type === 2 && (
+            <div>
+              <div className='text-sm font-medium text-muted-foreground'>Người dùng</div>
+              {giftCode.user ? (
+                <div className='text-sm'>
+                  <div className='font-medium'>{giftCode.user.user_name}</div>
+                  <div className='text-muted-foreground'>ID: {giftCode.user.id}</div>
+                </div>
+              ) : (
+                <div className='text-sm'>-</div>
+              )}
+            </div>
+          )}
 
           <div>
             <div className='text-sm font-medium text-muted-foreground'>Admin</div>

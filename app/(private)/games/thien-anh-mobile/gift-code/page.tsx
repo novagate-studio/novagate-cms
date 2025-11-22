@@ -24,7 +24,7 @@ export default function GiftCodePage() {
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState('created_at_desc')
+  const [sort, setSort] = useState('id_desc')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [deletingGiftCode, setDeletingGiftCode] = useState<{ id: number; code: string } | null>(null)
   const [selectedGiftCode, setSelectedGiftCode] = useState<GiftCode | null>(null)
@@ -149,8 +149,8 @@ export default function GiftCodePage() {
                 <SelectValue placeholder='Sắp xếp' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='created_at_desc'>Mới nhất</SelectItem>
-                <SelectItem value='created_at_asc'>Cũ nhất</SelectItem>
+                <SelectItem value='id_desc'>Mới nhất</SelectItem>
+                <SelectItem value='id_asc'>Cũ nhất</SelectItem>
                 <SelectItem value='code_asc'>Mã A-Z</SelectItem>
                 <SelectItem value='code_desc'>Mã Z-A</SelectItem>
               </SelectContent>
@@ -223,12 +223,8 @@ export default function GiftCodePage() {
                         </div>
                       </TableCell>
                       <TableCell>{getUsageTypeBadge(giftCode.usage_type)}</TableCell>
-                      <TableCell className='max-w-xs truncate'>
-                        {giftCode.gift_item_description || '-'}
-                      </TableCell>
-                      <TableCell className='max-w-xs truncate'>
-                        {giftCode.gift_money_description || '-'}
-                      </TableCell>
+                      <TableCell className='max-w-xs truncate'>{giftCode.gift_item_description || '-'}</TableCell>
+                      <TableCell className='max-w-xs truncate'>{giftCode.gift_money_description || '-'}</TableCell>
                       <TableCell>
                         {giftCode.user ? (
                           <div>
