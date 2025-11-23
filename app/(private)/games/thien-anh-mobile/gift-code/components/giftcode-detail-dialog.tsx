@@ -48,7 +48,7 @@ export function GiftCodeDetailDialog({ giftCode, open, onOpenChange }: GiftCodeD
             </div>
             <div>
               <div className='text-sm font-medium text-muted-foreground'>Mã Code</div>
-              <div className='text-sm font-mono font-semibold'>{giftCode.code}</div>
+              <div className='text-sm font-mono font-semibold uppercase'>{giftCode.code}</div>
             </div>
           </div>
 

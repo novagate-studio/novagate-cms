@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getThienAnhOverview, ThienAnhStats } from '@/services/game'
 import { Users, Swords, TrendingUp, DollarSign } from 'lucide-react'
 
-export default function ThienAnhMobilePage() {
+export default function TongQuatPage() {
   const [stats, setStats] = useState<ThienAnhStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -39,8 +39,7 @@ export default function ThienAnhMobilePage() {
     return (
       <div className='space-y-6'>
         <div>
-          <h1 className='text-3xl font-bold'>Thiên Ảnh Mobile</h1>
-          <p className='text-muted-foreground'>Tổng quan thống kê</p>
+          <h1 className='text-3xl font-bold'>Tổng quan</h1>
         </div>
         <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
           {[...Array(4)].map((_, i) => (
@@ -63,8 +62,7 @@ export default function ThienAnhMobilePage() {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold'>Thiên Ảnh Mobile</h1>
-        <p className='text-muted-foreground'>Tổng quan thống kê</p>
+        <h1 className='text-3xl font-bold'>Tổng quan</h1>
       </div>
 
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>

@@ -208,17 +208,15 @@ export default function TransferHistoryDetailPage() {
                       <p className='text-sm text-muted-foreground mb-2'>Game</p>
                       <div className='flex items-center gap-3'>
                         {transfer.game.image_url && (
-                          <img 
-                            src={transfer.game.image_url} 
+                          <img
+                            src={transfer.game.image_url}
                             alt={transfer.game.name}
                             className='h-16 w-16 rounded-lg object-cover'
                           />
                         )}
                         <div>
                           <p className='font-medium text-lg'>{transfer.game.name}</p>
-                          <p className='text-sm text-muted-foreground'>
-                            Tiền tệ: {transfer.game.ingame_currency_name}
-                          </p>
+                          <p className='text-sm text-muted-foreground'>Tiền tệ: {transfer.game.ingame_currency_name}</p>
                           <Badge variant='outline' className='mt-1'>
                             {transfer.game.status}
                           </Badge>
@@ -226,20 +224,14 @@ export default function TransferHistoryDetailPage() {
                       </div>
                     </div>
                     <div>
-                      <p className='text-sm text-muted-foreground'>Server</p>
-                      <p className='font-medium'>{transfer.game_server.name}</p>
-                    </div>
-                    <div>
-                      <p className='text-sm text-muted-foreground'>Nhân vật</p>
-                      <p className='font-medium'>{transfer.game_character.name}</p>
-                    </div>
-                    <div>
                       <p className='text-sm text-muted-foreground'>Số Coin</p>
                       <p className='font-medium'>{formatNumber(transfer.amount_coin)} Coin</p>
                     </div>
                     <div>
                       <p className='text-sm text-muted-foreground'>Số {transfer.game.ingame_currency_name}</p>
-                      <p className='font-medium'>{formatNumber(transfer.amount_ingame)} {transfer.game.ingame_currency_name}</p>
+                      <p className='font-medium'>
+                        {formatNumber(transfer.amount_ingame)} {transfer.game.ingame_currency_name}
+                      </p>
                     </div>
                     <div>
                       <p className='text-sm text-muted-foreground'>Ngày tạo</p>

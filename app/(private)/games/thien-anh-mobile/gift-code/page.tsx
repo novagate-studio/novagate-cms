@@ -277,7 +277,7 @@ export default function GiftCodePage() {
                       <TableCell className='font-medium'>{giftCode.id}</TableCell>
                       <TableCell>
                         <div className='flex items-center gap-2'>
-                          <span className='font-mono'>{giftCode.code}</span>
+                          <span className='font-mono uppercase'>{giftCode.code}</span>
                           <Button
                             variant='ghost'
                             size='icon'

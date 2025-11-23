@@ -188,8 +188,6 @@ export default function TransferHistoryPage() {
                   <TableHead>Loại</TableHead>
                   <TableHead>Ghi chú</TableHead>
                   <TableHead>Game</TableHead>
-                  <TableHead>Server</TableHead>
-                  <TableHead>Nhân vật</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>IP</TableHead>
                   <TableHead>Ngày tạo</TableHead>
@@ -197,8 +195,8 @@ export default function TransferHistoryPage() {
               </TableHeader>
               <TableBody>
                 {histories.map((history) => (
-                  <TableRow 
-                    key={history.id} 
+                  <TableRow
+                    key={history.id}
                     className='cursor-pointer hover:bg-muted/50'
                     onClick={() => router.push(`/transfer-history/${history.id}`)}>
                     <TableCell className='font-medium'>{history.id}</TableCell>
@@ -220,8 +218,8 @@ export default function TransferHistoryPage() {
                       {history.wallet_transfers.length > 0 ? (
                         <div className='flex items-center gap-2'>
                           {history.wallet_transfers[0].game.image_url && (
-                            <img 
-                              src={history.wallet_transfers[0].game.image_url} 
+                            <img
+                              src={history.wallet_transfers[0].game.image_url}
                               alt={history.wallet_transfers[0].game.name}
                               className='h-8 w-8 rounded object-cover'
                             />
@@ -234,22 +232,10 @@ export default function TransferHistoryPage() {
                     </TableCell>
                     <TableCell>
                       {history.wallet_transfers.length > 0 ? (
-                        <span>{history.wallet_transfers[0].game_server.name}</span>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {history.wallet_transfers.length > 0 ? (
-                        <span>{history.wallet_transfers[0].game_character.name}</span>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {history.wallet_transfers.length > 0 ? (
                         <Badge variant={history.wallet_transfers[0].status === 'success' ? 'default' : 'secondary'}>
-                          {history.wallet_transfers[0].status === 'success' ? 'Thành công' : history.wallet_transfers[0].status}
+                          {history.wallet_transfers[0].status === 'success'
+                            ? 'Thành công'
+                            : history.wallet_transfers[0].status}
                         </Badge>
                       ) : (
                         '-'

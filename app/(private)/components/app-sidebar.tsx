@@ -110,8 +110,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild isActive={pathname === '/games/thien-anh-mobile/su-kien'}>
-                          <Link href='/games/thien-anh-mobile/su-kien' onClick={handleMenuClick}>
+                        <SidebarMenuSubButton asChild isActive={pathname === '/games/thien-anh-mobile/overview'}>
+                          <Link href='/games/thien-anh-mobile/overview' onClick={handleMenuClick}>
+                            <span>Tổng quan</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild isActive={pathname === '/games/thien-anh-mobile/events'}>
+                          <Link href='/games/thien-anh-mobile/events' onClick={handleMenuClick}>
                             <span>Sự kiện</span>
                           </Link>
                         </SidebarMenuSubButton>
@@ -120,6 +127,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <SidebarMenuSubButton asChild isActive={pathname === '/games/thien-anh-mobile/gift-code'}>
                           <Link href='/games/thien-anh-mobile/gift-code' onClick={handleMenuClick}>
                             <span>Gift Code</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={pathname === '/games/thien-anh-mobile/transfer-history'}>
+                          <Link href='/games/thien-anh-mobile/transfer-history' onClick={handleMenuClick}>
+                            <span>Lịch sử chuyển tiền</span>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

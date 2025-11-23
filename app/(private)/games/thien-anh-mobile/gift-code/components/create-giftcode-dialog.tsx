@@ -32,9 +32,7 @@ import { Event } from '@/models/event'
 import { Account } from '@/models/player'
 
 const giftCodeSchema = z.object({
-  code: z.string().min(1, {
-    message: 'Mã code không được để trống',
-  }),
+  code: z.string().optional(),
   usageType: z.number().int().min(1).max(2, {
     message: 'Loại sử dụng phải là 1 (nhiều lần) hoặc 2 (một lần)',
   }),
@@ -147,13 +145,15 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
     try {
       // For usageType 1 (nhiều lần): exclude userId and totalGiftCodes (BE will set totalGiftCodes to 1)
       const payload: any = {
-        code: values.code,
         usageType: values.usageType,
         giftItemDescription: values.giftItemDescription,
         giftMoneyDescription: values.giftMoneyDescription,
       }
 
       // Only include optional fields if they have values
+      if (values.code) {
+        payload.code = values.code
+      }
       if (values.serverId) {
         payload.serverId = values.serverId
       }
@@ -215,7 +215,9 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 name='code'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mã Code</FormLabel>
+                    <FormLabel>
+                      Mã Code <span className='text-muted-foreground'>(Tùy chọn)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder='Nhập mã code' {...field} disabled={isSubmitting} />
                     </FormControl>
