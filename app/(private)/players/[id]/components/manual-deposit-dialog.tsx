@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label'
 import { manualDeposit } from '@/services/player'
 import { toast } from 'sonner'
 import { Wallet } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface ManualDepositDialogProps {
   playerId: string
@@ -27,12 +28,14 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
   const [amount, setAmount] = useState('')
   const [note, setNote] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [vndAmount, setVndAmount] = useState('')
+  const [isRevenueApplicable, setIsRevenueApplicable] = useState(true)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!amount || parseFloat(amount) <= 0) {
-      toast.error('Vui lòng nhập số coin hợp lệ')
+    if (!amount) {
+      toast.error('Vui lòng nhập số coin')
       return
     }
 
@@ -44,8 +47,10 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
     setIsLoading(true)
     try {
       await manualDeposit(playerId, {
-        amount: parseFloat(amount),
+        amount: +amount,
         note: note.trim(),
+        vnd_amount: isRevenueApplicable ? (vndAmount ? +vndAmount : undefined) : undefined,
+        is_revenue_applicable: isRevenueApplicable,
       })
       toast.success('Nạp coin thành công')
       setOpen(false)
@@ -64,14 +69,14 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
       <DialogTrigger asChild>
         <Button variant={'secondary'}>
           <Wallet className='mr-2 h-4 w-4' />
-          Nạp coin
+          Nạp/trừ coin
         </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Nạp coin thủ công</DialogTitle>
-            <DialogDescription>Nhập số coin và ghi chú để nạp coin cho người chơi.</DialogDescription>
+            <DialogTitle>Nạp/trừ coin</DialogTitle>
+            <DialogDescription>Nhập số coin và ghi chú để nạp/trừ coin cho người chơi.</DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
             <div className='grid gap-2'>
@@ -85,8 +90,6 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 disabled={isLoading}
-                min='0'
-                step='0.01'
               />
             </div>
             <div className='grid gap-2'>
@@ -102,6 +105,28 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
                 disabled={isLoading}
               />
             </div>
+            <div className='flex items-center gap-2'>
+              <Checkbox
+                id='isRevenueApplicable'
+                checked={isRevenueApplicable}
+                onCheckedChange={(checked) => setIsRevenueApplicable(!!checked)}
+                disabled={isLoading}
+              />
+              <Label htmlFor='isRevenueApplicable'>Tính doanh thu</Label>
+            </div>
+            {isRevenueApplicable && (
+              <div className='grid gap-2'>
+                <Label htmlFor='revenue'>Doanh thu (VNĐ)</Label>
+                <Input
+                  id='revenue'
+                  type='number'
+                  placeholder='Nhập doanh thu (Mặc định = số coin * 1000)'
+                  value={vndAmount}
+                  onChange={(e) => setVndAmount(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => setOpen(false)} disabled={isLoading}>

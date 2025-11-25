@@ -60,7 +60,9 @@ export const manualDeposit = async (
   id: string,
   data: {
     amount: number
+    vnd_amount?: number
     note: string
+    is_revenue_applicable: boolean
   }
 ): Promise<ResponseData<any>> => {
   const response = await adminAxiosInstance.post(`/api/v2/users/${id}/wallets/manual-deposit`, data)
