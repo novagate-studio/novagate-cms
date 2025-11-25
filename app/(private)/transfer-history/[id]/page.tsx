@@ -26,7 +26,7 @@ export default function TransferHistoryDetailPage() {
         setHistory(response.data)
       } catch (err) {
         console.error('Failed to fetch transfer history detail:', err)
-        setError('Không thể tải thông tin lịch sử chuyển tiền')
+        setError('Không thể tải thông tin lịch sử chuyển coin')
       } finally {
         setLoading(false)
       }
@@ -45,7 +45,7 @@ export default function TransferHistoryDetailPage() {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'transfer':
-        return 'Chuyển tiền'
+        return 'Chuyển coin'
       default:
         return type
     }
@@ -79,7 +79,7 @@ export default function TransferHistoryDetailPage() {
         </Button>
         <Card>
           <CardContent className='py-8'>
-            <p className='text-center text-muted-foreground'>{error || 'Không tìm thấy lịch sử chuyển tiền'}</p>
+            <p className='text-center text-muted-foreground'>{error || 'Không tìm thấy lịch sử chuyển coin'}</p>
           </CardContent>
         </Card>
       </div>
@@ -118,7 +118,7 @@ export default function TransferHistoryDetailPage() {
                 <p className='font-medium'>{formatNumber(history.balance_after)} Coin</p>
               </div>
               <div>
-                <p className='text-sm text-muted-foreground'>Số tiền</p>
+                <p className='text-sm text-muted-foreground'>Số coin</p>
                 <p className='font-semibold text-lg'>{formatNumber(history.amount)} Coin</p>
               </div>
               <div>
@@ -188,14 +188,14 @@ export default function TransferHistoryDetailPage() {
         {history.wallet_transfers.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin chuyển tiền vào game</CardTitle>
+              <CardTitle>Thông tin chuyển coin vào game</CardTitle>
             </CardHeader>
             <CardContent>
               {history.wallet_transfers.map((transfer) => (
                 <div key={transfer.id} className='space-y-4'>
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <div>
-                      <p className='text-sm text-muted-foreground'>ID chuyển tiền</p>
+                      <p className='text-sm text-muted-foreground'>ID chuyển coin</p>
                       <p className='font-medium'>#{transfer.id}</p>
                     </div>
                     <div>

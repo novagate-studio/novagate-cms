@@ -32,7 +32,7 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
     e.preventDefault()
 
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error('Vui lòng nhập số tiền hợp lệ')
+      toast.error('Vui lòng nhập số coin hợp lệ')
       return
     }
 
@@ -47,13 +47,13 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
         amount: parseFloat(amount),
         note: note.trim(),
       })
-      toast.success('Nạp tiền thành công')
+      toast.success('Nạp coin thành công')
       setOpen(false)
       setAmount('')
       setNote('')
       onSuccess?.()
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi nạp tiền')
+      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi nạp coin')
     } finally {
       setIsLoading(false)
     }
@@ -63,42 +63,40 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={'secondary'}>
-          <Wallet className="mr-2 h-4 w-4" />
-          Nạp tiền
+          <Wallet className='mr-2 h-4 w-4' />
+          Nạp coin
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className='sm:max-w-[425px]'>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Nạp tiền thủ công</DialogTitle>
-            <DialogDescription>
-              Nhập số tiền và ghi chú để nạp tiền cho người chơi.
-            </DialogDescription>
+            <DialogTitle>Nạp coin thủ công</DialogTitle>
+            <DialogDescription>Nhập số coin và ghi chú để nạp coin cho người chơi.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="amount">
-                Số tiền <span className="text-red-500">*</span>
+          <div className='grid gap-4 py-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor='amount'>
+                Số coin <span className='text-red-500'>*</span>
               </Label>
               <Input
-                id="amount"
-                type="number"
-                placeholder="Nhập số tiền"
+                id='amount'
+                type='number'
+                placeholder='Nhập số coin'
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 disabled={isLoading}
-                min="0"
-                step="0.01"
+                min='0'
+                step='0.01'
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="note">
-                Ghi chú <span className="text-red-500">*</span>
+            <div className='grid gap-2'>
+              <Label htmlFor='note'>
+                Ghi chú <span className='text-red-500'>*</span>
               </Label>
               <Input
-                id="note"
-                type="text"
-                placeholder="Nhập ghi chú"
+                id='note'
+                type='text'
+                placeholder='Nhập ghi chú'
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 disabled={isLoading}
@@ -106,10 +104,10 @@ export function ManualDepositDialog({ playerId, onSuccess }: ManualDepositDialog
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
+            <Button type='button' variant='outline' onClick={() => setOpen(false)} disabled={isLoading}>
               Hủy
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type='submit' disabled={isLoading}>
               {isLoading ? 'Đang xử lý...' : 'Xác nhận'}
             </Button>
           </DialogFooter>

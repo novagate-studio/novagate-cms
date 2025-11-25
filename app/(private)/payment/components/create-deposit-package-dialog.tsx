@@ -53,7 +53,7 @@ export function CreateDepositPackageDialog({ onSuccess }: CreateDepositPackageDi
         to_currency: toCurrency,
         is_active: isActive === 'true',
       })
-      toast.success('Tạo gói nạp tiền thành công')
+      toast.success('Tạo gói nạp coin thành công')
       setOpen(false)
       setFromAmount('')
       setToAmount('')
@@ -62,7 +62,7 @@ export function CreateDepositPackageDialog({ onSuccess }: CreateDepositPackageDi
       setIsActive('true')
       onSuccess?.()
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo gói nạp tiền')
+      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo gói nạp coin')
     } finally {
       setIsLoading(false)
     }
@@ -73,14 +73,14 @@ export function CreateDepositPackageDialog({ onSuccess }: CreateDepositPackageDi
       <DialogTrigger asChild>
         <Button>
           <Plus className='mr-2 h-4 w-4' />
-          Tạo gói nạp tiền
+          Tạo gói nạp coin
         </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[500px]'>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Tạo gói nạp tiền mới</DialogTitle>
-            <DialogDescription>Nhập thông tin gói nạp tiền để tạo mới.</DialogDescription>
+            <DialogTitle>Tạo gói nạp coin mới</DialogTitle>
+            <DialogDescription>Nhập thông tin gói nạp coin để tạo mới.</DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-2 gap-4'>
@@ -91,7 +91,7 @@ export function CreateDepositPackageDialog({ onSuccess }: CreateDepositPackageDi
                 <Input
                   id='from_amount'
                   type='number'
-                  placeholder='Nhập số tiền'
+                  placeholder='Nhập số coin'
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   disabled={isLoading}

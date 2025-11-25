@@ -63,7 +63,7 @@ export function GiftCodeDetailDialog({ giftCode, open, onOpenChange }: GiftCodeD
           </div>
 
           <div>
-            <div className='text-sm font-medium text-muted-foreground'>Mô tả tiền</div>
+            <div className='text-sm font-medium text-muted-foreground'>Mô tả coin</div>
             <div className='text-sm break-all'>{giftCode.gift_money_description || '-'}</div>
           </div>
 

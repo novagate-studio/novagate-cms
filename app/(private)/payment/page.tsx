@@ -165,7 +165,7 @@ export default function PaymentPage() {
 
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0'>
-          <CardTitle>Danh sách gói nạp tiền</CardTitle>
+          <CardTitle>Danh sách gói nạp coin</CardTitle>
           <CreateDepositPackageDialog onSuccess={handleCreateSuccess} />
         </CardHeader>
         <CardContent>
@@ -176,13 +176,13 @@ export default function PaymentPage() {
               ))}
             </div>
           ) : depositPackages.length === 0 ? (
-            <p className='text-center text-muted-foreground py-8'>Không có gói nạp tiền nào</p>
+            <p className='text-center text-muted-foreground py-8'>Không có gói nạp coin nào</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>Số tiền nạp</TableHead>
+                  <TableHead>Số tiền</TableHead>
                   <TableHead>Số coin nhận</TableHead>
                   <TableHead>Phương thức</TableHead>
                   <TableHead>Trạng thái</TableHead>
@@ -192,7 +192,10 @@ export default function PaymentPage() {
               </TableHeader>
               <TableBody>
                 {depositPackages.map((pkg) => (
-                  <TableRow key={pkg.id} className='cursor-pointer hover:bg-muted/50' onClick={() => handleEditClick(pkg)}>
+                  <TableRow
+                    key={pkg.id}
+                    className='cursor-pointer hover:bg-muted/50'
+                    onClick={() => handleEditClick(pkg)}>
                     <TableCell className='font-medium'>{pkg.id}</TableCell>
                     <TableCell>
                       {formatNumber(pkg.from_amount)} {pkg.from_currency}

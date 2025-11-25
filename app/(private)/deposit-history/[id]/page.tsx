@@ -26,7 +26,7 @@ export default function DepositHistoryDetailPage() {
         setHistory(response.data)
       } catch (err) {
         console.error('Failed to fetch deposit history detail:', err)
-        setError('Không thể tải thông tin lịch sử nạp tiền')
+        setError('Không thể tải thông tin lịch sử nạp coin')
       } finally {
         setLoading(false)
       }
@@ -45,9 +45,9 @@ export default function DepositHistoryDetailPage() {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'deposit':
-        return 'Nạp tiền'
+        return 'Nạp coin'
       case 'withdraw':
-        return 'Rút tiền'
+        return 'Rút coin'
       default:
         return type
     }
@@ -81,7 +81,7 @@ export default function DepositHistoryDetailPage() {
         </Button>
         <Card>
           <CardContent className='py-8'>
-            <p className='text-center text-muted-foreground'>{error || 'Không tìm thấy lịch sử nạp tiền'}</p>
+            <p className='text-center text-muted-foreground'>{error || 'Không tìm thấy lịch sử nạp coin'}</p>
           </CardContent>
         </Card>
       </div>
@@ -120,7 +120,7 @@ export default function DepositHistoryDetailPage() {
                 <p className='font-medium'>{formatNumber(history.balance_after)} Coin</p>
               </div>
               <div>
-                <p className='text-sm text-muted-foreground'>Số tiền</p>
+                <p className='text-sm text-muted-foreground'>Số coin</p>
                 <p className='font-semibold text-lg'>{formatNumber(history.amount)} Coin</p>
               </div>
               <div>
@@ -186,14 +186,14 @@ export default function DepositHistoryDetailPage() {
         {history.wallet_deposits.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin nạp tiền qua ví</CardTitle>
+              <CardTitle>Thông tin nạp coin qua ví</CardTitle>
             </CardHeader>
             <CardContent>
               {history.wallet_deposits.map((deposit) => (
                 <div key={deposit.id} className='space-y-4'>
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <div>
-                      <p className='text-sm text-muted-foreground'>ID nạp tiền</p>
+                      <p className='text-sm text-muted-foreground'>ID nạp coin</p>
                       <p className='font-medium'>#{deposit.id}</p>
                     </div>
                     <div>
@@ -216,7 +216,11 @@ export default function DepositHistoryDetailPage() {
                           <p className='text-sm text-muted-foreground'>Ngân hàng</p>
                           <div className='flex items-center gap-2'>
                             {deposit.bank.logo_url && (
-                              <img src={deposit.bank.logo_url} alt={deposit.bank.name} className='h-6 w-6 object-contain' />
+                              <img
+                                src={deposit.bank.logo_url}
+                                alt={deposit.bank.name}
+                                className='h-6 w-6 object-contain'
+                              />
                             )}
                             <p className='font-medium'>{deposit.bank.name}</p>
                           </div>

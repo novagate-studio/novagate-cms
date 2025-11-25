@@ -22,21 +22,21 @@ export default function TransferHistoryPage() {
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('created_at_desc')
   const [offset, setOffset] = useState(0)
-  const limit = 20
+  const limit = 50
 
   const getSortParams = (sortValue: string) => {
     // Handle created_at specially since it contains underscore
     if (sortValue.startsWith('created_at_')) {
       return {
         orderBy: 'created_at',
-        orderDirection: sortValue.split('created_at_')[1]
+        orderDirection: sortValue.split('created_at_')[1],
       }
     }
     // For other fields like amount_desc, amount_asc
     const parts = sortValue.split('_')
     return {
       orderBy: parts[0],
-      orderDirection: parts[1]
+      orderDirection: parts[1],
     }
   }
 
@@ -51,13 +51,13 @@ export default function TransferHistoryPage() {
         limit,
         search: searchQuery || undefined,
       })
-      
+
       if (isLoadMore) {
         setHistories((prev) => [...prev, ...response.data])
       } else {
         setHistories(response.data)
       }
-      
+
       setHasMore(response.data.length === limit)
     } catch (err) {
       console.error('Failed to fetch transfer histories:', err)
@@ -105,7 +105,7 @@ export default function TransferHistoryPage() {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'transfer':
-        return 'Chuyển tiền'
+        return 'Chuyển coin'
       default:
         return type
     }
@@ -114,7 +114,7 @@ export default function TransferHistoryPage() {
   if (loading && histories.length === 0) {
     return (
       <div className='space-y-6'>
-        <h1 className='text-3xl font-bold'>Lịch sử chuyển tiền</h1>
+        <h1 className='text-3xl font-bold'>Lịch sử chuyển Coin</h1>
         <Card>
           <CardHeader>
             <Skeleton className='h-8 w-64' />
@@ -133,11 +133,11 @@ export default function TransferHistoryPage() {
 
   return (
     <div className='space-y-6'>
-      <h1 className='text-3xl font-bold'>Lịch sử chuyển tiền</h1>
+      <h1 className='text-3xl font-bold'>Lịch sử chuyển Coin</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách lịch sử chuyển tiền</CardTitle>
+          <CardTitle>Danh sách lịch sử chuyển coin</CardTitle>
         </CardHeader>
         <CardContent>
           <div className='mb-4 flex gap-4'>
@@ -157,8 +157,8 @@ export default function TransferHistoryPage() {
               <SelectContent>
                 <SelectItem value='created_at_desc'>Mới nhất</SelectItem>
                 <SelectItem value='created_at_asc'>Cũ nhất</SelectItem>
-                <SelectItem value='amount_desc'>Số tiền giảm dần</SelectItem>
-                <SelectItem value='amount_asc'>Số tiền tăng dần</SelectItem>
+                <SelectItem value='amount_desc'>Số coin giảm dần</SelectItem>
+                <SelectItem value='amount_asc'>Số coin tăng dần</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -174,7 +174,7 @@ export default function TransferHistoryPage() {
             }
             endMessage={
               <p className='py-4 text-center text-sm text-muted-foreground'>
-                {histories.length === 0 ? 'Không có lịch sử chuyển tiền nào' : 'Đã tải hết dữ liệu'}
+                {histories.length === 0 ? 'Không có lịch sử chuyển coin nào' : 'Đã tải hết dữ liệu'}
               </p>
             }>
             <Table>
@@ -184,7 +184,7 @@ export default function TransferHistoryPage() {
                   <TableHead>Người dùng</TableHead>
                   <TableHead>Số dư trước</TableHead>
                   <TableHead>Số dư sau</TableHead>
-                  <TableHead>Số tiền</TableHead>
+                  <TableHead>Số coin</TableHead>
                   <TableHead>Loại</TableHead>
                   <TableHead>Ghi chú</TableHead>
                   <TableHead>Game</TableHead>

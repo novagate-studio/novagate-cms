@@ -12,7 +12,7 @@ import { debounce } from 'lodash'
 import { Search } from 'lucide-react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { format } from 'date-fns'
-
+const LIMIT = 50
 export default function LichSuChuyenTienPage() {
   const [histories, setHistories] = useState<ThienAnhTransferHistory[]>([])
   const [hasMore, setHasMore] = useState(true)
@@ -39,13 +39,13 @@ export default function LichSuChuyenTienPage() {
           orderBy,
           orderDirection,
           offset,
-          limit: 20,
+          limit: LIMIT,
         })
 
         if (response.code === 200 && response.data) {
           const newHistories = response.data || []
           setHistories((prev) => (isNewSearch ? newHistories : [...prev, ...newHistories]))
-          setHasMore(newHistories.length === 20)
+          setHasMore(newHistories.length === LIMIT)
         }
       } catch (error) {
         console.error('Error fetching transfer histories:', error)
@@ -73,15 +73,17 @@ export default function LichSuChuyenTienPage() {
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'KNB', maximumFractionDigits: 0 }).format(
+      amount
+    )
   }
 
   const getTypeBadge = (type: number) => {
     switch (type) {
       case 1:
-        return <Badge variant='default'>Cộng tiền</Badge>
+        return <Badge variant='default'>Cộng coin</Badge>
       case 2:
-        return <Badge variant='secondary'>Trừ tiền</Badge>
+        return <Badge variant='secondary'>Trừ coin</Badge>
       default:
         return <Badge variant='outline'>Không xác định</Badge>
     }
@@ -90,7 +92,7 @@ export default function LichSuChuyenTienPage() {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold'>Lịch sử chuyển tiền</h1>
+        <h1 className='text-3xl font-bold'>Lịch sử chuyển Coin</h1>
       </div>
 
       <Card>
@@ -115,8 +117,8 @@ export default function LichSuChuyenTienPage() {
               <SelectContent>
                 <SelectItem value='created_at_desc'>Mới nhất</SelectItem>
                 <SelectItem value='created_at_asc'>Cũ nhất</SelectItem>
-                <SelectItem value='amount_desc'>Số tiền cao nhất</SelectItem>
-                <SelectItem value='amount_asc'>Số tiền thấp nhất</SelectItem>
+                <SelectItem value='amount_desc'>Số coin cao nhất</SelectItem>
+                <SelectItem value='amount_asc'>Số coin thấp nhất</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -154,7 +156,7 @@ export default function LichSuChuyenTienPage() {
                       <TableHead>Người dùng</TableHead>
                       <TableHead>Admin</TableHead>
                       <TableHead>Loại</TableHead>
-                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Số coin</TableHead>
                       <TableHead>Gateway</TableHead>
                       <TableHead>Ghi chú</TableHead>
                       <TableHead>Thời gian</TableHead>
@@ -186,7 +188,10 @@ export default function LichSuChuyenTienPage() {
                         </TableCell>
                         <TableCell>{getTypeBadge(history.type)}</TableCell>
                         <TableCell>
-                          <span className={history.type === 1 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                          <span
+                            className={
+                              history.type === 1 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'
+                            }>
                             {history.type === 1 ? '+' : '-'}
                             {formatCurrency(history.amount)}
                           </span>

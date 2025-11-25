@@ -40,4 +40,6 @@ export interface CreateGiftCodeRequest {
   serverId: number
   userId: string
   eventId: number
+  startTime: number
+  endTime: number
 }

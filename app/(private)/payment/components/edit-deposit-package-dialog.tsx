@@ -69,11 +69,11 @@ export function EditDepositPackageDialog({ package: pkg, open, onOpenChange, onS
         to_currency: toCurrency,
         is_active: isActive === 'true',
       })
-      toast.success('Cập nhật gói nạp tiền thành công')
+      toast.success('Cập nhật gói nạp coin thành công')
       onOpenChange(false)
       onSuccess?.()
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật gói nạp tiền')
+      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật gói nạp coin')
     } finally {
       setIsLoading(false)
     }
@@ -85,12 +85,12 @@ export function EditDepositPackageDialog({ package: pkg, open, onOpenChange, onS
     setIsDeleting(true)
     try {
       await deleteDepositPackage(pkg.id)
-      toast.success('Xóa gói nạp tiền thành công')
+      toast.success('Xóa gói nạp coin thành công')
       onOpenChange(false)
       setShowDeleteConfirm(false)
       onSuccess?.()
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi xóa gói nạp tiền')
+      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi xóa gói nạp coin')
     } finally {
       setIsDeleting(false)
     }
@@ -103,8 +103,8 @@ export function EditDepositPackageDialog({ package: pkg, open, onOpenChange, onS
       <DialogContent className='sm:max-w-[500px]'>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Chỉnh sửa gói nạp tiền #{pkg.id}</DialogTitle>
-            <DialogDescription>Cập nhật thông tin gói nạp tiền.</DialogDescription>
+            <DialogTitle>Chỉnh sửa gói nạp coin #{pkg.id}</DialogTitle>
+            <DialogDescription>Cập nhật thông tin gói nạp coin.</DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-2 gap-4'>
@@ -115,7 +115,7 @@ export function EditDepositPackageDialog({ package: pkg, open, onOpenChange, onS
                 <Input
                   id='from_amount'
                   type='number'
-                  placeholder='Nhập số tiền'
+                  placeholder='Nhập số coin'
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   disabled={isLoading}
@@ -194,7 +194,11 @@ export function EditDepositPackageDialog({ package: pkg, open, onOpenChange, onS
               Xóa
             </Button>
             <div className='flex gap-2'>
-              <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading || isDeleting}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading || isDeleting}>
                 Hủy
               </Button>
               <Button type='submit' disabled={isLoading || isDeleting}>
@@ -209,9 +213,10 @@ export function EditDepositPackageDialog({ package: pkg, open, onOpenChange, onS
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa gói nạp tiền</DialogTitle>
+            <DialogTitle>Xác nhận xóa gói nạp coin</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa gói nạp tiền #{pkg.id} ({formatNumber(pkg.from_amount)} {pkg.from_currency} → {formatNumber(pkg.to_amount)} {pkg.to_currency})?
+              Bạn có chắc chắn muốn xóa gói nạp coin #{pkg.id} ({formatNumber(pkg.from_amount)} {pkg.from_currency} →{' '}
+              {formatNumber(pkg.to_amount)} {pkg.to_currency})?
               <br />
               <span className='text-red-500 font-semibold'>Hành động này không thể hoàn tác.</span>
             </DialogDescription>

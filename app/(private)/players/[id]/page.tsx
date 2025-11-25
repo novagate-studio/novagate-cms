@@ -108,10 +108,7 @@ export default function PlayerDetailPage() {
           Quay lại
         </Button>
         <div className='flex gap-2'>
-          <ResetPasswordDialog 
-            playerId={params.id as string} 
-            playerName={player?.username || player?.full_name}
-          />
+          <ResetPasswordDialog playerId={params.id as string} playerName={player?.username || player?.full_name} />
           <ManualDepositDialog playerId={params.id as string} onSuccess={handleDepositSuccess} />
           <Button onClick={() => router.push(`/players/${params.id}/edit`)}>
             <Pencil className='mr-2 h-4 w-4' />
@@ -149,9 +146,7 @@ export default function PlayerDetailPage() {
               </div>
               <div>
                 <p className='text-sm text-muted-foreground'>Ngày sinh</p>
-                <p className='font-medium'>
-                  {player.dob ? new Date(player.dob).toLocaleDateString('vi-VN') : '-'}
-                </p>
+                <p className='font-medium'>{player.dob ? new Date(player.dob).toLocaleDateString('vi-VN') : '-'}</p>
               </div>
               <div>
                 <p className='text-sm text-muted-foreground'>Giới tính</p>
@@ -261,7 +256,7 @@ export default function PlayerDetailPage() {
                       <TableHead>Thời gian</TableHead>
                       <TableHead>Loại</TableHead>
                       <TableHead>Số dư trước</TableHead>
-                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Số coin</TableHead>
                       <TableHead>Số dư sau</TableHead>
                       <TableHead>Ghi chú</TableHead>
                       <TableHead>IP</TableHead>
@@ -270,14 +265,16 @@ export default function PlayerDetailPage() {
                   <TableBody>
                     {accountLogs.map((log: any) => (
                       <TableRow key={log.id}>
-                        <TableCell>
-                          {log.created_at ? new Date(log.created_at).toLocaleString('vi-VN') : '-'}
-                        </TableCell>
+                        <TableCell>{log.created_at ? new Date(log.created_at).toLocaleString('vi-VN') : '-'}</TableCell>
                         <TableCell>
                           <Badge
                             variant={log.type === 'deposit' ? 'default' : 'secondary'}
-                            className={log.type === 'deposit' ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600'}>
-                            {log.type === 'deposit' ? 'Nạp tiền' : log.type === 'transfer' ? 'Chuyển' : log.type}
+                            className={
+                              log.type === 'deposit'
+                                ? 'bg-green-500 hover:bg-green-600'
+                                : 'bg-orange-500 hover:bg-orange-600'
+                            }>
+                            {log.type === 'deposit' ? 'Nạp coin' : log.type === 'transfer' ? 'Chuyển' : log.type}
                           </Badge>
                         </TableCell>
                         <TableCell className='font-medium'>{log.balance_before ?? '-'}</TableCell>
@@ -316,14 +313,16 @@ export default function PlayerDetailPage() {
                   <TableBody>
                     {activityLogs.map((log: any) => (
                       <TableRow key={log.id}>
-                        <TableCell>
-                          {log.created_at ? new Date(log.created_at).toLocaleString('vi-VN') : '-'}
-                        </TableCell>
+                        <TableCell>{log.created_at ? new Date(log.created_at).toLocaleString('vi-VN') : '-'}</TableCell>
                         <TableCell>
                           <Badge
                             variant={log.action === 'login' ? 'default' : 'secondary'}
                             className={log.action === 'login' ? 'bg-blue-500 hover:bg-blue-600' : ''}>
-                            {log.action === 'login' ? 'Đăng nhập' : log.action === 'update_password' ? 'Đổi mật khẩu' : log.action}
+                            {log.action === 'login'
+                              ? 'Đăng nhập'
+                              : log.action === 'update_password'
+                              ? 'Đổi mật khẩu'
+                              : log.action}
                           </Badge>
                         </TableCell>
                         <TableCell className='text-sm'>

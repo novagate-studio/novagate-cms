@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenuButton size={'lg'} className='cursor-default pointer-events-none'>
           <Image src={Logo} alt='Novagate Logo' className='w-10 h-auto' />
-          <div className='whitespace-nowrap font-bold ml-2 text-xl'>Quản lý</div>
+          <div className='whitespace-nowrap font-bold ml-2 text-xl'>CMS</div>
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
@@ -81,7 +81,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuButton size={'lg'} className='' isActive={pathname.startsWith('/deposit-history')} asChild>
                   <Link href='/deposit-history' onClick={handleMenuClick}>
                     <History className='size-5!' />
-                    <span>Lịch sử nạp tiền</span>
+                    <span>Lịch sử nạp coin</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -90,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuButton size={'lg'} className='' isActive={pathname.startsWith('/transfer-history')} asChild>
                   <Link href='/transfer-history' onClick={handleMenuClick}>
                     <ArrowRightLeft className='size-5!' />
-                    <span>Lịch sử chuyển tiền</span>
+                    <span>Lịch sử chuyển coin</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -135,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           asChild
                           isActive={pathname === '/games/thien-anh-mobile/transfer-history'}>
                           <Link href='/games/thien-anh-mobile/transfer-history' onClick={handleMenuClick}>
-                            <span>Lịch sử chuyển tiền</span>
+                            <span>Lịch sử chuyển coin</span>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

@@ -105,9 +105,9 @@ export default function DepositHistoryPage() {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'deposit':
-        return 'Nạp tiền'
+        return 'Nạp coin'
       case 'withdraw':
-        return 'Rút tiền'
+        return 'Rút coin'
       default:
         return type
     }
@@ -116,7 +116,7 @@ export default function DepositHistoryPage() {
   if (loading && histories.length === 0) {
     return (
       <div className='space-y-6'>
-        <h1 className='text-3xl font-bold'>Lịch sử nạp tiền</h1>
+        <h1 className='text-3xl font-bold'>Lịch sử nạp coin</h1>
         <Card>
           <CardHeader>
             <Skeleton className='h-8 w-64' />
@@ -135,11 +135,11 @@ export default function DepositHistoryPage() {
 
   return (
     <div className='space-y-6'>
-      <h1 className='text-3xl font-bold'>Lịch sử nạp tiền</h1>
+      <h1 className='text-3xl font-bold'>Lịch sử nạp coin</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách lịch sử nạp tiền</CardTitle>
+          <CardTitle>Danh sách lịch sử nạp coin</CardTitle>
         </CardHeader>
         <CardContent>
           <div className='mb-4 flex gap-4'>
@@ -159,8 +159,8 @@ export default function DepositHistoryPage() {
               <SelectContent>
                 <SelectItem value='created_at_desc'>Mới nhất</SelectItem>
                 <SelectItem value='created_at_asc'>Cũ nhất</SelectItem>
-                <SelectItem value='amount_desc'>Số tiền giảm dần</SelectItem>
-                <SelectItem value='amount_asc'>Số tiền tăng dần</SelectItem>
+                <SelectItem value='amount_desc'>Số coin giảm dần</SelectItem>
+                <SelectItem value='amount_asc'>Số coin tăng dần</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -176,7 +176,7 @@ export default function DepositHistoryPage() {
             }
             endMessage={
               <p className='py-4 text-center text-sm text-muted-foreground'>
-                {histories.length === 0 ? 'Không có lịch sử nạp tiền nào' : 'Đã tải hết dữ liệu'}
+                {histories.length === 0 ? 'Không có lịch sử nạp coin nào' : 'Đã tải hết dữ liệu'}
               </p>
             }>
             <Table>
@@ -186,7 +186,7 @@ export default function DepositHistoryPage() {
                   <TableHead>Người dùng</TableHead>
                   <TableHead>Số dư trước</TableHead>
                   <TableHead>Số dư sau</TableHead>
-                  <TableHead>Số tiền</TableHead>
+                  <TableHead>Số coin</TableHead>
                   <TableHead>Loại</TableHead>
                   <TableHead>Ghi chú</TableHead>
                   <TableHead>Phương thức</TableHead>
@@ -197,8 +197,8 @@ export default function DepositHistoryPage() {
               </TableHeader>
               <TableBody>
                 {histories.map((history) => (
-                  <TableRow 
-                    key={history.id} 
+                  <TableRow
+                    key={history.id}
                     className='cursor-pointer hover:bg-muted/50'
                     onClick={() => router.push(`/deposit-history/${history.id}`)}>
                     <TableCell className='font-medium'>{history.id}</TableCell>
@@ -221,7 +221,9 @@ export default function DepositHistoryPage() {
                         <div className='flex flex-col gap-1'>
                           <span className='capitalize'>{history.wallet_deposits[0].method}</span>
                           {history.wallet_deposits[0].bank && (
-                            <span className='text-xs text-muted-foreground'>{history.wallet_deposits[0].bank.name}</span>
+                            <span className='text-xs text-muted-foreground'>
+                              {history.wallet_deposits[0].bank.name}
+                            </span>
                           )}
                         </div>
                       ) : (
@@ -231,7 +233,9 @@ export default function DepositHistoryPage() {
                     <TableCell>
                       {history.wallet_deposits.length > 0 ? (
                         <Badge variant={history.wallet_deposits[0].status === 'success' ? 'default' : 'secondary'}>
-                          {history.wallet_deposits[0].status === 'success' ? 'Thành công' : history.wallet_deposits[0].status}
+                          {history.wallet_deposits[0].status === 'success'
+                            ? 'Thành công'
+                            : history.wallet_deposits[0].status}
                         </Badge>
                       ) : (
                         '-'

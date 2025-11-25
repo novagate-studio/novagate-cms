@@ -13,26 +13,25 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Calendar } from '@/components/ui/calendar'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import { createGiftCode } from '@/services/giftcode'
+import { updateGiftCode } from '@/services/giftcode'
 import { getEventsList } from '@/services/event'
 import { getServersList, Server } from '@/services/game'
 import { searchAccounts } from '@/services/player'
-import { Plus, Check, ChevronsUpDown, AlertCircle, CalendarIcon } from 'lucide-react'
+import { Check, ChevronsUpDown, CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Event } from '@/models/event'
 import { Account } from '@/models/player'
+import { GiftCode } from '@/models/giftcode'
 
 const giftCodeSchema = z.object({
   code: z.string().optional(),
@@ -57,12 +56,14 @@ const giftCodeSchema = z.object({
 
 type GiftCodeFormData = z.infer<typeof giftCodeSchema>
 
-interface CreateGiftCodeDialogProps {
-  onGiftCodeCreated: () => void
+interface EditGiftCodeDialogProps {
+  giftCode: GiftCode | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onGiftCodeUpdated: () => void
 }
 
-export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialogProps) {
-  const [open, setOpen] = useState(false)
+export function EditGiftCodeDialog({ giftCode, open, onOpenChange, onGiftCodeUpdated }: EditGiftCodeDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
   const [eventPopoverOpen, setEventPopoverOpen] = useState(false)
@@ -92,17 +93,33 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
   })
 
   useEffect(() => {
-    if (open) {
+    if (open && giftCode) {
+      form.reset({
+        code: giftCode.code || '',
+        usageType: giftCode.usage_type,
+        totalGiftCodes: undefined,
+        giftItemDescription: giftCode.gift_item_description || '',
+        giftMoneyDescription: giftCode.gift_money_description || '',
+        serverId: giftCode.server_id || undefined,
+        userId: giftCode.user_id || undefined,
+        eventId: giftCode.event_id || undefined,
+        startTime: giftCode.start_time ? new Date(giftCode.start_time) : undefined,
+        endTime: giftCode.end_time ? new Date(giftCode.end_time) : undefined,
+      })
+      setSelectedUser((giftCode.user as any) || null)
+      setSelectedEvent((giftCode.event as any) || null)
+      setEventSearchQuery('')
+      fetchEvents('')
       fetchServers()
     }
-  }, [open])
+  }, [open, giftCode])
 
   const fetchEvents = useCallback(
     debounce(async (search: string) => {
       try {
         const response = await getEventsList({
           search: search || undefined,
-          limit: 50,
+          limit: 5,
           orderBy: 'created_at',
           orderDirection: 'desc',
         })
@@ -131,46 +148,39 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
     }
   }
 
-  const searchUsers = async (username: string) => {
-    try {
-      const response = await searchAccounts(username)
-      if (response.code === 200 && response.data) {
-        setUsers(response.data)
-      }
-    } catch (error) {
-      console.error('Error searching users:', error)
-      setUsers([])
-    }
-  }
-
-  const debouncedSearchUsers = useCallback(
-    debounce((username: string) => {
-      if (username) {
-        searchUsers(username)
-      } else {
+  const debouncedSearchAccounts = useCallback(
+    debounce(async (username: string) => {
+      if (!username) {
         setUsers([])
+        return
+      }
+      try {
+        const response = await searchAccounts(username)
+        if (response.code === 200 && response.data) {
+          setUsers(response.data)
+        }
+      } catch (error) {
+        console.error('Error searching accounts:', error)
       }
     }, 500),
     []
   )
 
   useEffect(() => {
-    debouncedSearchUsers(userSearchQuery)
-  }, [userSearchQuery, debouncedSearchUsers])
+    debouncedSearchAccounts(userSearchQuery)
+  }, [userSearchQuery, debouncedSearchAccounts])
 
-  async function onSubmit(values: GiftCodeFormData) {
-    if (isSubmitting) return
+  const onSubmit = async (values: GiftCodeFormData) => {
+    if (!giftCode) return
 
     setIsSubmitting(true)
     try {
-      // For usageType 1 (nhiều lần): exclude userId and totalGiftCodes (BE will set totalGiftCodes to 1)
       const payload: any = {
         usageType: values.usageType,
         giftItemDescription: values.giftItemDescription,
         giftMoneyDescription: values.giftMoneyDescription,
       }
 
-      // Only include optional fields if they have values
       if (values.code) {
         payload.code = values.code
       }
@@ -181,58 +191,49 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
         payload.eventId = values.eventId
       }
       if (values.startTime) {
-        payload.startTime = values.startTime.getTime()
+        payload.startTime = values.startTime.getTime().toString()
       }
       if (values.endTime) {
-        payload.endTime = values.endTime.getTime()
+        payload.endTime = values.endTime.getTime().toString()
       }
 
-      // Only include totalGiftCodes and userId for usageType 2 (một lần)
       if (values.usageType === 2) {
-        if (values.totalGiftCodes) {
-          payload.totalGiftCodes = values.totalGiftCodes
-        }
         if (values.userId) {
           payload.userId = values.userId.toString()
         }
       }
 
-      const response = await createGiftCode(payload)
+      const response = await updateGiftCode(giftCode.id, payload)
 
-      if (response.code === 201 || response.status) {
-        toast.success('Tạo Gift Code thành công!')
-        setOpen(false)
+      if (response.code === 200 || response.status) {
+        toast.success('Cập nhật Gift Code thành công!')
+        onOpenChange(false)
         form.reset()
         setSelectedUser(null)
         setSelectedEvent(null)
         setUserSearchQuery('')
         setUsers([])
-        onGiftCodeCreated()
+        onGiftCodeUpdated()
       } else {
         const errorMessage = typeof response.message === 'object' ? response.message.vi : response.message
-        toast.error(errorMessage || 'Có lỗi xảy ra khi tạo Gift Code')
+        toast.error(errorMessage || 'Có lỗi xảy ra khi cập nhật Gift Code')
       }
     } catch (error: any) {
       const errorMessage =
-        error?.response?.data?.message?.vi || error?.response?.data?.message || 'Có lỗi xảy ra khi tạo Gift Code'
+        error?.response?.data?.message?.vi || error?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật Gift Code'
       toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  if (!giftCode) return null
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className='h-4 w-4 mr-2' />
-          Tạo Gift Code
-        </Button>
-      </DialogTrigger>
-      <DialogContent className='min-w-5xl'>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='min-w-5xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle>Tạo Gift Code mới</DialogTitle>
-          <DialogDescription>Nhập thông tin Gift Code mới cho Thiên Ảnh Mobile</DialogDescription>
+          <DialogTitle>Chỉnh sửa Gift Code</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -277,104 +278,7 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 )}
               />
             </div>
-            {form.watch('usageType') === 2 && (
-              <div className='grid grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='totalGiftCodes'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Số lượng Gift Code</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='number'
-                          placeholder='Nhập số lượng'
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='userId'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-col'>
-                      <FormLabel>
-                        User <span className='text-muted-foreground'>(Tùy chọn)</span>
-                      </FormLabel>
-                      <Popover open={userPopoverOpen} onOpenChange={setUserPopoverOpen}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant='outline'
-                              role='combobox'
-                              disabled={isSubmitting}
-                              className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}>
-                              <span className='truncate'>
-                                {field.value ? selectedUser?.userName || `User #${field.value}` : 'Chọn user'}
-                              </span>
-                              <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-[400px] p-0'>
-                          <Command shouldFilter={false}>
-                            <CommandInput
-                              placeholder='Tìm kiếm user...'
-                              value={userSearchQuery}
-                              onValueChange={setUserSearchQuery}
-                            />
-                            <CommandList>
-                              <CommandEmpty>
-                                {userSearchQuery ? 'Không tìm thấy user' : 'Nhập để tìm kiếm user'}
-                              </CommandEmpty>
-                              <CommandGroup>
-                                {users.map((user) => (
-                                  <CommandItem
-                                    key={user.id}
-                                    value={`${user.userName} ${user.id}`}
-                                    onSelect={() => {
-                                      field.onChange(user.id)
-                                      setSelectedUser(user)
-                                      setUserPopoverOpen(false)
-                                      setUserSearchQuery('')
-                                    }}
-                                    className='flex items-center gap-2'>
-                                    <Check
-                                      className={cn(
-                                        'h-4 w-4 shrink-0',
-                                        user.id === field.value ? 'opacity-100' : 'opacity-0'
-                                      )}
-                                    />
-                                    <div className='flex flex-col overflow-hidden'>
-                                      <span className='truncate'>{user.userName}</span>
-                                      <span className='text-xs text-muted-foreground'>ID: {user.id}</span>
-                                    </div>
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-            {form.watch('usageType') === 2 && form.watch('totalGiftCodes') && form.watch('totalGiftCodes')! > 1 && (
-              <Alert variant={'warning'}>
-                <AlertCircle className='h-4 w-4' />
-                <AlertDescription>
-                  Loại sử dụng "Một lần" với số lượng lớn hơn 1 sẽ tự động tạo mã gift code ngẫu nhiên.
-                </AlertDescription>
-              </Alert>
-            )}
+
             <FormField
               control={form.control}
               name='giftItemDescription'
@@ -382,12 +286,13 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 <FormItem>
                   <FormLabel>Vật phẩm</FormLabel>
                   <FormControl>
-                    <Input placeholder='VD: 920|10' {...field} disabled={isSubmitting} />
+                    <Input placeholder='VD: 1001|1#1002|2' {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='giftMoneyDescription'
@@ -401,7 +306,8 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 </FormItem>
               )}
             />
-            <div className='grid grid-cols-2 gap-4'>
+
+            <div className='grid grid-cols-3 gap-4'>
               <FormField
                 control={form.control}
                 name='serverId'
@@ -420,7 +326,7 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                             className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}>
                             <span className='truncate'>
                               {field.value
-                                ? servers.find((server) => server.id === field.value)?.name || `Server #${field.value}`
+                                ? servers.find((s) => s.id === field.value)?.name || `Server #${field.value}`
                                 : 'Chọn server'}
                             </span>
                             <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -463,6 +369,7 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name='eventId'
@@ -528,6 +435,79 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                   </FormItem>
                 )}
               />
+              {form.watch('usageType') === 2 && (
+                <FormField
+                  control={form.control}
+                  name='userId'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-col'>
+                      <FormLabel>
+                        User <span className='text-muted-foreground'>(Tùy chọn)</span>
+                      </FormLabel>
+                      <Popover open={userPopoverOpen} onOpenChange={setUserPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant='outline'
+                              role='combobox'
+                              disabled={isSubmitting}
+                              className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}>
+                              <span className='truncate'>
+                                {field.value
+                                  ? selectedUser?.userName || (selectedUser as any)?.user_name || `User #${field.value}`
+                                  : 'Chọn user'}
+                              </span>
+                              <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className='w-[400px] p-0'>
+                          <Command shouldFilter={false}>
+                            <CommandInput
+                              placeholder='Tìm kiếm user...'
+                              value={userSearchQuery}
+                              onValueChange={setUserSearchQuery}
+                            />
+                            <CommandList>
+                              <CommandEmpty>
+                                {userSearchQuery ? 'Không tìm thấy user' : 'Nhập để tìm kiếm user'}
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {users.map((user) => (
+                                  <CommandItem
+                                    key={user.id}
+                                    value={`${user.userName} ${user.id}`}
+                                    onSelect={() => {
+                                      field.onChange(user.id)
+                                      setSelectedUser(user)
+                                      setUserPopoverOpen(false)
+                                    }}
+                                    className='flex items-center gap-2'>
+                                    <Check
+                                      className={cn(
+                                        'h-4 w-4 shrink-0',
+                                        user.id === field.value ? 'opacity-100' : 'opacity-0'
+                                      )}
+                                    />
+                                    <div className='flex flex-col overflow-hidden'>
+                                      <span className='truncate'>{user.userName}</span>
+                                      <span className='text-xs text-muted-foreground'>ID: {user.id}</span>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='startTime'
@@ -619,12 +599,13 @@ export function CreateGiftCodeDialog({ onGiftCodeCreated }: CreateGiftCodeDialog
                 )}
               />
             </div>
+
             <DialogFooter>
-              <Button type='button' variant='outline' onClick={() => setOpen(false)} disabled={isSubmitting}>
+              <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                 Hủy
               </Button>
               <Button type='submit' disabled={isSubmitting}>
-                {isSubmitting ? 'Đang tạo...' : 'Tạo Gift Code'}
+                {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật Gift Code'}
               </Button>
             </DialogFooter>
           </form>
