@@ -1,0 +1,192 @@
+/* Heading Styles for Blog Content - Only apply within .article */
+
+.article h1,
+#editorjs h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.article h1:first-child,
+#editorjs h1:first-child {
+  margin-top: 0;
+}
+
+.article h2,
+#editorjs h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.article h3,
+#editorjs h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.article h4,
+#editorjs h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.article h5,
+#editorjs h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.article h6,
+#editorjs h6 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Paragraph and Text Styles */
+.article p,
+#editorjs p {
+  font-size: 1rem;
+  line-height: 1.625;
+}
+
+/* List Styles */
+.article ul,
+.article ol,
+#editorjs ul,
+#editorjs ol {
+  margin-left: 1.5rem;
+}
+
+.article li,
+#editorjs li {
+  font-size: 1rem;
+  line-height: 1.625;
+}
+
+.article ul > li {
+  list-style-type: disc;
+}
+
+.article ol > li {
+  list-style-type: decimal;
+}
+
+/* Code Styles */
+.article code,
+#editorjs code {
+  background-color: #f5f5f5;
+  padding: 0.375rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+  color: #dc2626;
+}
+
+.article pre,
+#editorjs pre {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.article pre code,
+#editorjs pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Blockquote Styles */
+.article blockquote,
+#editorjs blockquote {
+  border-left: 4px solid #2563eb;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-style: italic;
+  color: #6b7280;
+  background-color: rgba(245, 245, 245, 0.5);
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+/* Link Styles */
+.article a,
+#editorjs a {
+  color: #2563eb;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.article a:hover,
+#editorjs a:hover {
+  color: #1e40af;
+}
+
+/* Strong and Emphasis */
+.article strong,
+.article b,
+#editorjs strong,
+#editorjs b {
+  font-weight: 700;
+}
+
+.article em,
+.article i,
+#editorjs em,
+#editorjs i {
+  font-style: italic;
+}
+
+/* Horizontal Rule */
+.article hr,
+#editorjs hr {
+  border-color: #e5e7eb;
+}
+
+/* Table Styles */
+.article table,
+#editorjs table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.article table thead,
+#editorjs table thead {
+  background-color: #f5f5f5;
+}
+
+.article table th,
+#editorjs table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.article table td,
+#editorjs table td {
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  font-size: 1rem;
+  line-height: 1.625;
+}
+
+.article table tbody tr:nth-child(even),
+#editorjs table tbody tr:nth-child(even) {
+  background-color: rgba(245, 245, 245, 0.5);
+}
+
+.article table tbody tr:hover,
+#editorjs table tbody tr:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+.image-tool__caption{
+  font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    font-style: italic;
+}

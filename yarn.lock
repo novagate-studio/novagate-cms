@@ -1098,6 +1098,11 @@ editorjs-paragraph-with-alignment@3.x:
   resolved "https://registry.yarnpkg.com/editorjs-paragraph-with-alignment/-/editorjs-paragraph-with-alignment-3.0.0.tgz#831b34b59fcb432296af56bca0f5787131872d93"
   integrity sha512-vSjjB/KUECEBxYqbj9yn1L799L14n0uoKrvk5qfaAokIHB8mYg5hZ8mOTtoS2cJu+xE3QZ/jmHY/Fh0EJeM8ZQ==
 
+editorjs-parser@^1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/editorjs-parser/-/editorjs-parser-1.5.3.tgz#b977f970ba85375252546a8e34e1d3c72ebd03a6"
+  integrity sha512-ypc6mku0A55ycxdTHjijy/rRtQ060bwQKyEGMDPbnEglRAR/DE/4GJNdKtMGvUWNTGT6Fe25L/AoEQ5bhasQAg==
+
 editorjs-text-alignment-blocktune@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/editorjs-text-alignment-blocktune/-/editorjs-text-alignment-blocktune-1.0.3.tgz#7942fe2d3fbdbd7fcfd10fbb9b341c97ec3eb84f"

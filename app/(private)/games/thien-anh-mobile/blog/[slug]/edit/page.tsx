@@ -14,18 +14,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { createArticle, uploadFile } from '@/services/article'
+import { getArticleBySlug, updateArticle, uploadFile } from '@/services/article'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Upload } from 'lucide-react'
 import Image from 'next/image'
-import { useRef, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import Editor from '../components/editor'
-import EditorJS from '@editorjs/editorjs'
+import Editor from '../../components/editor'
+import EditorJS, { OutputData } from '@editorjs/editorjs'
+import editorParser from 'editorjs-parser'
 import { Label } from '@/components/ui/label'
-import { useRouter } from 'next/navigation'
+
 const blogSchema = z.object({
   title: z.string().min(1, 'Tiêu đề không được để trống'),
   description: z.string().min(1, 'Mô tả không được để trống'),
@@ -36,16 +38,24 @@ const blogSchema = z.object({
 
 type BlogFormData = z.infer<typeof blogSchema>
 
-export default function BlogCreatePage() {
+export default function BlogEditPage() {
+  const params = useParams()
+  const router = useRouter()
+  const slug = params.slug as string
+
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [bannerFile, setBannerFile] = useState<File | null>(null)
   const [bannerPreview, setBannerPreview] = useState<string>('')
+  const [originalBanner, setOriginalBanner] = useState<string>('')
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('')
+  const [originalThumbnail, setOriginalThumbnail] = useState<string>('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [articleId, setArticleId] = useState<number | null>(null)
   const editorRef = useRef<EditorJS | null>(null)
-  const router = useRouter()
+  const [savedData, setSavedData] = useState<OutputData | null>(null)
 
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogSchema),
@@ -57,6 +67,46 @@ export default function BlogCreatePage() {
       thumbnail: '',
     },
   })
+
+  // Load article data
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        setIsLoading(true)
+        const response = await getArticleBySlug(slug)
+
+        if (response.code === 200 && response.data) {
+          const article = response.data
+          setArticleId(article.id)
+          form.reset({
+            title: article.title,
+            description: article.description,
+            tags: article.tags,
+            banner: article.banner,
+            thumbnail: article.thumbnail,
+          })
+          setBannerPreview(article.banner)
+          setOriginalBanner(article.banner)
+          setThumbnailPreview(article.thumbnail)
+          setOriginalThumbnail(article.thumbnail)
+          setSavedData(article.content)
+        } else {
+          toast.error('Không thể tải bài viết')
+          router.push('/games/thien-anh-mobile/blog')
+        }
+      } catch (error) {
+        console.error('Error loading article:', error)
+        toast.error('Có lỗi xảy ra khi tải bài viết')
+        router.push('/games/thien-anh-mobile/blog')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (slug) {
+      loadArticle()
+    }
+  }, [slug, form, router])
 
   const handleBannerSelect = (file: File) => {
     setBannerFile(file)
@@ -77,8 +127,8 @@ export default function BlogCreatePage() {
   }
 
   const uploadImages = async () => {
-    let bannerUrl = ''
-    let thumbnailUrl = ''
+    let bannerUrl = originalBanner
+    let thumbnailUrl = originalThumbnail
 
     try {
       setIsUploading(true)
@@ -115,18 +165,29 @@ export default function BlogCreatePage() {
     setShowConfirmDialog(true)
   }
 
-  const handleConfirmCreate = async () => {
+  const handleConfirmUpdate = async () => {
     setShowConfirmDialog(false)
     setIsSubmitting(true)
+
+    if (!articleId) {
+      toast.error('Không tìm thấy ID bài viết')
+      setIsSubmitting(false)
+      return
+    }
+
     const cleanData = await editorRef.current?.save()
     if (!cleanData?.blocks || cleanData.blocks.length === 0) {
       toast.error('Nội dung bài viết không được để trống')
       setIsSubmitting(false)
       return
     }
+
+    const parser = new editorParser()
+    const content = parser.parse(cleanData)
+
     try {
-      let bannerUrl = ''
-      let thumbnailUrl = ''
+      let bannerUrl = originalBanner
+      let thumbnailUrl = originalThumbnail
 
       if (bannerFile || thumbnailFile) {
         const { bannerUrl: bUrl, thumbnailUrl: tUrl } = await uploadImages()
@@ -138,47 +199,51 @@ export default function BlogCreatePage() {
       const payload = {
         title: values.title,
         description: values.description,
-        content: cleanData,
+        content: content,
         tags: values.tags,
         banner: bannerUrl,
         thumbnail: thumbnailUrl,
-        game_id: 3,
       }
 
-      const response = await createArticle(payload)
+      const response = await updateArticle(articleId, payload)
 
       if (response.code === 200 || response.status) {
-        toast.success('Tạo bài viết thành công!')
-        router.push('/games/thien-anh-mobile/blog')
-        form.reset()
-        setBannerFile(null)
-        editorRef.current?.clear()
-        setBannerPreview('')
-        setThumbnailFile(null)
-        setThumbnailPreview('')
+        toast.success('Cập nhật bài viết thành công!')
+        router.push(`/games/thien-anh-mobile/blog/${slug}`)
       } else {
         const errorMessage = typeof response.message === 'object' ? response.message.vi : response.message
-        toast.error(errorMessage || 'Có lỗi xảy ra khi tạo bài viết')
+        toast.error(errorMessage || 'Có lỗi xảy ra khi cập nhật bài viết')
       }
     } catch (error: any) {
       const errorMessage =
-        error?.response?.data?.message?.vi || error?.response?.data?.message || 'Có lỗi xảy ra khi tạo bài viết'
+        error?.response?.data?.message?.vi || error?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật bài viết'
       toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='text-center space-y-4'>
+          <div className='h-8 w-8 border-4 border-gray-300 border-t-primary rounded-full animate-spin mx-auto'></div>
+          <p className='text-gray-500'>Đang tải bài viết...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold'>Tạo bài viết mới</h1>
+        <h1 className='text-3xl font-bold'>Chỉnh sửa bài viết</h1>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Thông tin bài viết</CardTitle>
-          <CardDescription>Điền thông tin đầy đủ để tạo bài viết mới</CardDescription>
+          <CardDescription>Chỉnh sửa thông tin bài viết</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -305,25 +370,23 @@ export default function BlogCreatePage() {
                 />
               </div>
 
-              <div className='space-y-2'>
-                <Label>Nội dung</Label>
-                <Editor editorRef={editorRef} />
-                <FormMessage />
-              </div>
+              {savedData && (
+                <div className='space-y-2'>
+                  <Label>Nội dung</Label>
+                  <Editor editorRef={editorRef} savedData={savedData} />
+                  <FormMessage />
+                </div>
+              )}
 
               <div className='flex gap-4'>
                 <Button type='submit' disabled={isSubmitting || isUploading}>
-                  {isSubmitting ? 'Đang tạo...' : 'Tạo bài viết'}
+                  {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật bài viết'}
                 </Button>
                 <Button
                   type='button'
                   variant='outline'
                   onClick={() => {
-                    form.reset()
-                    setBannerFile(null)
-                    setBannerPreview('')
-                    setThumbnailFile(null)
-                    setThumbnailPreview('')
+                    router.push(`/games/thien-anh-mobile/blog/${slug}`)
                   }}
                   disabled={isSubmitting}>
                   Hủy
@@ -337,8 +400,8 @@ export default function BlogCreatePage() {
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận tạo bài viết</DialogTitle>
-            <DialogDescription>Bạn có chắc chắn muốn tạo bài viết này?</DialogDescription>
+            <DialogTitle>Xác nhận cập nhật bài viết</DialogTitle>
+            <DialogDescription>Bạn có chắc chắn muốn cập nhật bài viết này?</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
@@ -348,7 +411,7 @@ export default function BlogCreatePage() {
               disabled={isUploading || isSubmitting}>
               Hủy
             </Button>
-            <Button onClick={handleConfirmCreate} disabled={isUploading || isSubmitting}>
+            <Button onClick={handleConfirmUpdate} disabled={isUploading || isSubmitting}>
               {isUploading || isSubmitting ? 'Đang xử lý...' : 'Xác nhận'}
             </Button>
           </DialogFooter>
