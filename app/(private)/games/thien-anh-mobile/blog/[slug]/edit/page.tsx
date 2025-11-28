@@ -182,9 +182,6 @@ export default function BlogEditPage() {
       return
     }
 
-    const parser = new editorParser()
-    const content = parser.parse(cleanData)
-
     try {
       let bannerUrl = originalBanner
       let thumbnailUrl = originalThumbnail
@@ -199,7 +196,7 @@ export default function BlogEditPage() {
       const payload = {
         title: values.title,
         description: values.description,
-        content: content,
+        content: cleanData,
         tags: values.tags,
         banner: bannerUrl,
         thumbnail: thumbnailUrl,
