@@ -100,6 +100,43 @@ const customParsers = {
         }
         
         return `<${tag} ${containerAttrs}>${renderListItems(items, style)}</${tag}>`;
+    },
+    table: function(data: { content?: any[] }, config: any) {
+        const { content = [] } = data;
+        
+        if (!content || content.length === 0) {
+            return '<table></table>';
+        }
+        
+        let tableHtml = '<table style="width: 100%; border-collapse: collapse;">';
+        
+        content.forEach((row: any[], rowIndex: number) => {
+            tableHtml += '<tr>';
+            row.forEach((cell: any) => {
+                tableHtml += '<td style="border: 1px solid #e5e7eb; padding: 0.75rem;">';
+                
+                if (typeof cell === 'string') {
+                    // Text content
+                    tableHtml += cell;
+                } else if (cell && cell.type === 'image' && cell.data?.file?.url) {
+                    // Image content
+                    const imgUrl = cell.data.file.url;
+                    tableHtml += `<img src="${imgUrl}" alt="table image" style="max-width: 100%; height: auto; display: block;" />`;
+                } else if (cell && cell.image) {
+                    // Fallback for direct image URL
+                    tableHtml += `<img src="${cell.image}" alt="table image" style="max-width: 100%; height: auto; display: block;" />`;
+                } else {
+                    // Empty cell or other content
+                    tableHtml += '';
+                }
+                
+                tableHtml += '</td>';
+            });
+            tableHtml += '</tr>';
+        });
+        
+        tableHtml += '</table>';
+        return tableHtml;
     }
 }
 
