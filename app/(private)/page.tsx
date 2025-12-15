@@ -1,17 +1,22 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Player } from '@/models/player'
-import { getPlayersList } from '@/services/player'
-import { Loader2 } from 'lucide-react'
-import { useCallback, useEffect, useState, useMemo } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { debounce } from 'lodash'
-import { useRouter } from 'next/navigation'
+import { debounce } from 'lodash';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from '@/components/ui/table';
+import { Player } from '@/models/player';
+import { getPlayersList } from '@/services/player';
 
 export default function Home() {
   const router = useRouter()
@@ -169,6 +174,7 @@ export default function Home() {
                       <TableHead>Tổng nạp</TableHead>
                       <TableHead>Tổng chuyển</TableHead>
                       <TableHead>Số dư</TableHead>
+                      <TableHead>Ngày sinh</TableHead>
                       <TableHead>Ngày tạo</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -207,6 +213,9 @@ export default function Home() {
                         <TableCell>{player.total_transfer || 0}</TableCell>
                         <TableCell>
                           {player.user_wallets?.[0]?.balance || 0} {player.user_wallets?.[0]?.currency || 'Coin'}
+                        </TableCell>
+                        <TableCell>
+                          {player.dob ? new Date(player.dob).toLocaleDateString('vi-VN') : '-'}
                         </TableCell>
                         <TableCell>
                           {player.created_at ? new Date(player.created_at).toLocaleDateString('vi-VN') : '-'}
