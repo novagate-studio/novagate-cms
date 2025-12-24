@@ -18,11 +18,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en' className='light'>
-      <body className={`${font.variable} antialiased light`}>
-        {children}
-        <Toaster richColors />
-      </body>
-    </html>
+    <div>Under maintenance</div>
+    // <html lang='en' className='light'>
+    //   <body className={`${font.variable} antialiased light`}>
+    //     {children}
+    //     <Toaster richColors />
+    //   </body>
+    // </html>
   )
 }
