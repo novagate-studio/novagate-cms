@@ -300,23 +300,27 @@ export default function PlayerDetailPage() {
             <CardTitle>Nhật ký hoạt động</CardTitle>
           </CardHeader>
           <CardContent>
-            {activityLogs.length === 0 ? (
-              <p className='text-center text-muted-foreground py-4'>Không có nhật ký hoạt động</p>
-            ) : (
-              <div className='max-h-96 overflow-y-auto'>
-                <Table>
-                  <TableHeader>
+            <div className='max-h-96 overflow-y-auto'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Thời gian</TableHead>
+                    <TableHead>Hoạt động</TableHead>
+                    <TableHead>Vị trí</TableHead>
+                    <TableHead>IP</TableHead>
+                    <TableHead>Thiết bị</TableHead>
+                    <TableHead>Số giờ chơi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {activityLogs.length === 0 ? (
                     <TableRow>
-                      <TableHead>Thời gian</TableHead>
-                      <TableHead>Hoạt động</TableHead>
-                      <TableHead>Vị trí</TableHead>
-                      <TableHead>IP</TableHead>
-                      <TableHead>Thiết bị</TableHead>
-                      <TableHead>Số giờ chơi</TableHead>
+                      <TableCell colSpan={6} className='text-center text-muted-foreground py-4'>
+                        Không có nhật ký hoạt động
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {activityLogs.map((log: any) => (
+                  ) : (
+                    activityLogs.map((log: any) => (
                       <TableRow key={log.id}>
                         <TableCell>{log.created_at ? new Date(log.created_at).toLocaleString('vi-VN') : '-'}</TableCell>
                         <TableCell>
@@ -337,11 +341,11 @@ export default function PlayerDetailPage() {
                         <TableCell className='text-sm'>{log.user_agent_formatted || '-'}</TableCell>
                         <TableCell className='text-sm'>-</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>
