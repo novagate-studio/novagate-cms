@@ -209,7 +209,7 @@ export default function PlayerDetailPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Danh sách ví</CardTitle>
+            <CardTitle>Danh sách vật phẩm, tiền tệ trong game</CardTitle>
           </CardHeader>
           <CardContent>
             {wallets.length === 0 ? (
