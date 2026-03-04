@@ -246,24 +246,28 @@ export default function PlayerDetailPage() {
             <CardTitle>Lịch sử giao dịch</CardTitle>
           </CardHeader>
           <CardContent>
-            {accountLogs.length === 0 ? (
-              <p className='text-center text-muted-foreground py-4'>Không có lịch sử giao dịch</p>
-            ) : (
-              <div className='max-h-96 overflow-y-auto'>
-                <Table>
-                  <TableHeader>
+            <div className='max-h-96 overflow-y-auto'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Thời gian</TableHead>
+                    <TableHead>Loại</TableHead>
+                    <TableHead>Số dư trước</TableHead>
+                    <TableHead>Số coin</TableHead>
+                    <TableHead>Số dư sau</TableHead>
+                    <TableHead>Ghi chú</TableHead>
+                    <TableHead>IP</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {accountLogs.length === 0 ? (
                     <TableRow>
-                      <TableHead>Thời gian</TableHead>
-                      <TableHead>Loại</TableHead>
-                      <TableHead>Số dư trước</TableHead>
-                      <TableHead>Số coin</TableHead>
-                      <TableHead>Số dư sau</TableHead>
-                      <TableHead>Ghi chú</TableHead>
-                      <TableHead>IP</TableHead>
+                      <TableCell colSpan={7} className='text-center text-muted-foreground py-4'>
+                        Không có lịch sử giao dịch
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {accountLogs.map((log: any) => (
+                  ) : (
+                    accountLogs.map((log: any) => (
                       <TableRow key={log.id}>
                         <TableCell>{log.created_at ? new Date(log.created_at).toLocaleString('vi-VN') : '-'}</TableCell>
                         <TableCell>
@@ -283,11 +287,11 @@ export default function PlayerDetailPage() {
                         <TableCell>{log.note || '-'}</TableCell>
                         <TableCell className='text-muted-foreground text-xs'>{log.ip || '-'}</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
@@ -308,6 +312,7 @@ export default function PlayerDetailPage() {
                       <TableHead>Vị trí</TableHead>
                       <TableHead>IP</TableHead>
                       <TableHead>Thiết bị</TableHead>
+                      <TableHead>Số giờ chơi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -330,6 +335,7 @@ export default function PlayerDetailPage() {
                         </TableCell>
                         <TableCell className='text-muted-foreground text-xs'>{log.ip_address || '-'}</TableCell>
                         <TableCell className='text-sm'>{log.user_agent_formatted || '-'}</TableCell>
+                        <TableCell className='text-sm'>-</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
