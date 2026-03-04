@@ -308,6 +308,7 @@ export default function PlayerDetailPage() {
                       <TableHead>Vị trí</TableHead>
                       <TableHead>IP</TableHead>
                       <TableHead>Thiết bị</TableHead>
+                      <TableHead>Số giờ chơi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -330,6 +331,7 @@ export default function PlayerDetailPage() {
                         </TableCell>
                         <TableCell className='text-muted-foreground text-xs'>{log.ip_address || '-'}</TableCell>
                         <TableCell className='text-sm'>{log.user_agent_formatted || '-'}</TableCell>
+                        <TableCell className='text-sm'>-</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
